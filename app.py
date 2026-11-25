@@ -99,9 +99,15 @@ def explain_openai_error(response):
     if status==404:
         return 'Không tìm thấy model đã cấu hình. Kiểm tra OPENAI_MODEL trên Render.'
     if status==429:
-        if code=='insufficient_quota':
-            return 'OpenAI API chưa có đủ credits hoặc hạn mức thanh toán. Kiểm tra billing của API Platform.'
-        return 'Vượt tốc độ gọi API hoặc hạn mức của project. Kiểm tra Usage, Limits và billing.'
+        if code in ('credit_balance_exhausted','insufficient_quota'):
+            return 'OpenAI API đã hết credits hoặc quota tính phí. Kiểm tra Billing của API Platform.'
+        if code in ('organization_spend_limit_exceeded','project_spend_limit_exceeded'):
+            return 'Đã chạm giới hạn chi tiêu được cấu hình cho organization/project. Kiểm tra Limits và Spend controls trong OpenAI Platform.'
+        if code=='organization_usage_limit_exceeded':
+            return 'Đã chạm hạn mức sử dụng API của tổ chức. Kiểm tra Organization Limits trên OpenAI Platform.'
+        if code in ('rate_limit_exceeded','tokens_per_minute','requests_per_minute'):
+            return 'Đã vượt giới hạn tốc độ gọi API. Giảm số lần nhấn AI và kiểm tra rate limits của model/project.'
+        return 'OpenAI trả lỗi 429: có thể hết credits hoặc chạm hạn mức yêu cầu. Kiểm tra Billing và Limits trên OpenAI Platform.'
     if status in (500,502,503,504):
         return 'Dịch vụ OpenAI đang lỗi hoặc quá tải. Thử lại sau.'
     return 'OpenAI từ chối yêu cầu. Kiểm tra API key, model và hạn mức project.'
