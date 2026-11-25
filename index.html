@@ -17,6 +17,33 @@
 .budgetmath{margin-top:9px;background:#fff6fa;border:1px solid #f2dce7;border-radius:12px;padding:10px 12px;font-size:12px;line-height:1.5;color:#76586a;font-variant-numeric:tabular-nums}.budgetmath.negative{background:#fff5eb;color:#955521;border-color:#f3d5b0}#reserveHelper{margin-top:9px;font-size:11px}.budgetlabel{display:none}
 @media(max-width:650px){body{overflow-x:hidden;font-size:14px}.nav{height:auto;min-height:62px}.navin{min-height:62px;flex-wrap:wrap;gap:6px;padding-top:9px;padding-bottom:9px}.navright{width:100%}.livebadge{font-size:11px;padding:5px 9px}.hero{padding:17px 19px;margin-top:12px;margin-bottom:12px;border-radius:20px;box-shadow:none}.hero h1{font-size:25px;line-height:1.14;margin:7px 0}.hero p{font-size:12px;line-height:1.45}.tabbar{gap:5px;margin-bottom:12px}.tab{padding:9px 10px;font-size:12px}.fields{grid-template-columns:1fr}.field.full{grid-column:auto}.field input,.field select{font-size:16px;min-height:46px}.budgethead{display:none}.budgetrow{grid-template-columns:minmax(0,1fr) minmax(0,1fr) 36px;grid-template-areas:"name name lock" "cur prop lock" "original proposed lock";gap:5px 8px;padding:12px;margin:9px 0;border:1px solid #f0e1e9;border-radius:14px}.catname{grid-area:name;font-size:13px}.budgetlabel{display:block;font-size:10px;font-weight:700;color:#917d8d}.budgetlabel.cur{grid-area:cur}.budgetlabel.propo{grid-area:prop}.budgetrow input[data-kind=original]{grid-area:original}.budgetrow input[data-kind=proposed]{grid-area:proposed}.budgetrow .lock{grid-area:lock;align-self:center}.budgetrow input{height:44px;font-size:14px;padding:7px 8px}.actions{gap:8px}.actions .button{flex:1 1 100%}.card{padding:17px}.metric strong{font-size:14px}.trow{grid-template-columns:45px 1fr 85px}}
 @media(max-width:370px){.budgetrow{grid-template-columns:minmax(0,1fr) minmax(0,1fr) 33px;gap:4px}.budgetrow input{font-size:12px}.brandname{font-size:18px}}
+#budgetPrint{display:none}
+.optionbar{gap:10px;align-items:center;flex-wrap:wrap;margin-top:12px}
+.floorrow{grid-column:1/-1;display:flex;gap:9px;align-items:center;justify-content:flex-end;flex-wrap:wrap;font-size:11px;color:#8d7484}
+.floorrow input{max-width:136px;height:36px;font-size:12px}
+.floorrow small{font-size:10px;color:#9f8d9a}
+.marketcontext{background:#fff4f9;border:1px solid #f4d8e6;padding:10px 12px;border-radius:12px;color:#8d6279;font-size:11px;line-height:1.5}
+.monthscroll{overflow-x:auto;margin-top:8px}.monthtable{width:100%;border-collapse:collapse;white-space:nowrap;font-size:11px}
+.monthtable td,.monthtable th{text-align:right;padding:8px 6px;border-bottom:1px solid #f4e6ee}
+.monthtable td:first-child,.monthtable th:first-child{text-align:left}.monthtable th{color:#887084;font-weight:800}
+.negative-month td:nth-child(3){color:#ae4e30;font-weight:750}
+@media(max-width:650px){.floorrow{justify-content:flex-start;gap:5px}.floorrow input{max-width:130px;font-size:13px}.optionbar .button{width:100%}.monthscroll{margin-left:-5px;margin-right:-5px}.monthtable{font-size:10px}}
+@media print{
+ @page{size:A4;margin:12mm}
+ body{background:white!important;color:#222!important;font:10pt Arial,sans-serif!important}
+ body>*:not(#budgetPrint){display:none!important}
+ #budgetPrint{display:block!important;margin:0!important;padding:0!important}
+ #budgetPrint h1{font-size:19pt;margin:0 0 5pt;color:#a9146b}
+ #budgetPrint h2{font-size:12pt;margin:14pt 0 6pt;color:#333}
+ #budgetPrint .printmeta{font-size:9pt;color:#666;margin:0 0 12pt}
+ #budgetPrint .printtable{width:100%;border-collapse:collapse;font-size:8.5pt;margin:0 0 8pt}
+ #budgetPrint .printtable td,#budgetPrint .printtable th{border:1px solid #ddd;padding:5pt 7pt;text-align:right}
+ #budgetPrint .printtable td:first-child,#budgetPrint .printtable th:first-child{text-align:left}
+ #budgetPrint .printtable th{background:#fae4f0;color:#752247;font-weight:bold}
+ #budgetPrint .printtable tr{break-inside:avoid}
+ #budgetPrint .printnote,#budgetPrint .printsources{font-size:8pt;color:#555;line-height:1.45;margin-top:8pt}
+ #budgetPrint h2{break-after:avoid}
+}
 </style></head>
 <body>
 <header class="nav"><div class="navin"><div class="brand"><div class="mark" aria-hidden="true">G</div><div><div class="brandname">Goal<span>Wise</span> <span style="font-size:12px;color:#887381">AI</span></div><div class="subbrand">YOUR SAVING COMPANION</div></div></div><div class="navright"><span class="livebadge" id="status">● Bản demo offline</span></div></div></header>
@@ -358,7 +385,60 @@ function renderBankList(){const term=n('allTerm'),sort=$('sortRates').value,p=$(
 function showSelectedBank(){const id=selectedBankId||$('ownBank').value;const bank=db.banks.find(x=>x.id===id);const area=$('selectedBank');if(!bank){const name=ownBankName();area.textContent=name?`${name}: chưa có lãi suất đối chiếu trong database. App không tự tạo số; hãy kiểm tra biểu ngân hàng trước khi quyết định.`:'Chọn một ngân hàng ở bảng trên để xem chi tiết.';return}const t=n('allTerm'),rate=bank.rates[t],p=n('principal');area.replaceChildren();const title=document.createElement('strong');title.textContent=bank.name+' · '+t+' tháng · '+pct(rate)+'/năm';area.append(title);const detail=document.createElement('div');detail.textContent=`Lãi minh họa cho ${fmt(p)}: ${fmt(p*rate/100*t/12)}. ${bank.minimum==null?'Mức gửi tối thiểu chưa được xác minh.':'Mức gửi tham khảo: '+fmt(bank.minimum)+'.'} ${bank.partner?'Có thể xem sản phẩm qua MoMo.':'Không phải đối tác gửi tiền trên MoMo theo bảng hiện tại.'}`;area.append(detail);const anchor=document.createElement('a');anchor.href=db.source_url;anchor.target='_blank';anchor.rel='noopener noreferrer';anchor.textContent='Nguồn công bố lãi suất ↗';area.append(anchor)}
 function renderWithdrawal(){const host=$('withdrawResult');if(!options){host.textContent='Chọn được phương án ở trên để mô phỏng rút trước hạn.';return}const month=n('withdrawMonth'),want=n('withdrawAmount'),p=options.principal;let out=[];for(const [name,x] of [['A',options.high],['B',options.flex]]){if(!x)continue;if(month>=x.term){out.push(`Option ${name} — ${x.b.name}: đã đáo hạn ở tháng ${x.term}, nhận lãi minh họa ${fmt(x.interest)} (không tính tái tục).`);continue}const zero= p*0.001*month/12;let s=`Option ${name} — ${x.b.name}: nếu rút hết tháng ${month}, lãi chỉ khoảng ${fmt(zero)} theo giả định không kỳ hạn 0,1%/năm.`;
 if(want>0&&want<p&&x.b.partial){if(p-want>=x.b.min_remainder){s+=` Nếu rút ${fmt(want)} riêng, phần ${fmt(p-want)} còn lại có thể tiếp tục hưởng lãi kỳ hạn, nếu đủ điều kiện.`}else s+=` Rút một phần như nhập sẽ không đủ số dư duy trì tham khảo.`}out.push(s)}host.textContent=out.join('\n\n')+'\n\n0,1%/năm chỉ là giả định minh họa, không phải mức rút sớm thực tế của ngân hàng.'}
-function exportPlan(){const c=bankContext(),a=options?.high,b=options?.flex;const lines=[`GOALWISE AI — BẢN TÓM TẮT`,`Dữ liệu lãi suất: ${db.as_of} | ${db.source_url}`,`Mục tiêu: ${$('goal').value}`,`Giá: ${fmt(n('price'))}`,`Đã có: ${fmt(n('current'))}`,`Thu nhập: ${fmt(n('income'))}`,`Sau điều chỉnh: tiết kiệm ${fmt(saving())}/tháng`, `Thời gian đạt: ${Number.isFinite(eta())?eta()+' tháng':'chưa đủ dữ liệu'}`,`Tiền dự kiến gửi: ${fmt(c.principal)}`,`Ngân hàng đang dùng: ${ownBankName()||'Không chọn'}`,`Option A: ${a?a.b.name+' | '+a.term+' tháng | '+pct(a.rate)+' | lãi '+fmt(a.interest):'Không có'}`,`Option B: ${b?b.b.name+' | '+b.term+' tháng | '+pct(b.rate)+' | lãi '+fmt(b.interest):'Không có'}`,`Lãi tính đơn giản theo năm/12, không phải cam kết ngân hàng.`,...cats.map(x=>`${x.name}: ${fmt(state[x.id].original)} → ${fmt(state[x.id].proposed)}`)];const blob=new Blob([lines.join('\n')],{type:'text/plain;charset=utf-8'});const url=URL.createObjectURL(blob);const aTag=document.createElement('a');aTag.href=url;aTag.download='GoalWise_KeHoach_TietKiem.txt';aTag.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}
+function exportBudgetPDF(){
+ // Print the income-and-expense report only. Never include banking products/rates.
+ const report=document.getElementById('budgetPrint');
+ const date=new Date().toLocaleDateString('vi-VN');
+ report.replaceChildren();
+ const heading=document.createElement('h1');heading.textContent='GoalWise | Báo cáo thu – chi';report.append(heading);
+ const meta=document.createElement('p');meta.className='printmeta';
+ const area=$('livingArea').selectedOptions[0]?.textContent||'Khu vực khác';
+ const scenario=$('inflationScenario').selectedOptions[0]?.textContent||'';
+ meta.textContent='Ngày tạo: '+date+'  •  Khu vực: '+area+'  •  Kịch bản: '+scenario;
+ report.append(meta);
+ const title=document.createElement('h2');title.textContent='Tổng quan ngân sách';report.append(title);
+ const overview=document.createElement('table');overview.className='printtable';
+ const summary=[
+  ['Thu nhập mỗi tháng',fmt(n('income'))],
+  ['Tổng chi hiện tại',fmt(sum('original'))],
+  ['Tổng chi sau điều chỉnh',fmt(sum('proposed'))],
+  ['Quỹ dự phòng/tháng',fmt(n('reserve'))],
+  ['Số dư tháng đầu theo kế hoạch',monthlyBalance(0)<0?'Thiếu '+fmt(-monthlyBalance(0)):fmt(monthlyBalance(0))],
+  ['Mục tiêu tiết kiệm', $('goal').value.trim()||'Chưa ghi'],
+  ['Giá mục tiêu',fmt(n('price'))],
+  ['Tiền đang có',fmt(n('current'))],
+  ['Dự kiến đạt mục tiêu',eta()===0?'Đã đủ tiền':Number.isFinite(eta())?eta()+' tháng':'Chưa xác định']
+ ];
+ for(const [k,v] of summary){const row=overview.insertRow();const a=row.insertCell(),b=row.insertCell();a.textContent=k;b.textContent=v}
+ report.append(overview);
+ const sub=document.createElement('h2');sub.textContent='Chi tiết chi tiêu mỗi tháng';report.append(sub);
+ const expenses=document.createElement('table');expenses.className='printtable';
+ const head=expenses.createTHead().insertRow();
+ for(const h of ['Khoản chi','Hiện tại','Kế hoạch','Tối thiểu do bạn đặt']){const th=document.createElement('th');th.textContent=h;head.append(th)}
+ const tbody=expenses.createTBody();
+ for(const c of cats){const st=state[c.id],row=tbody.insertRow();
+  for(const x of [c.name,fmt(st.original),fmt(st.proposed),fmt(st.floor)]){row.insertCell().textContent=x}
+ }
+ report.append(expenses);
+ const monthTitle=document.createElement('h2');monthTitle.textContent='Dự toán dòng tiền 12 tháng';report.append(monthTitle);
+ const future=document.createElement('table');future.className='printtable';
+ const futureHead=future.createTHead().insertRow();
+ for(const h of ['Tháng','Thu nhập','Chi phí ước tính','Quỹ dự phòng','Dư / thiếu','Tổng tích lũy']){const th=document.createElement('th');th.textContent=h;futureHead.append(th)}
+ const futureBody=future.createTBody();
+ for(let month=1;month<=12;month++){
+  const row=futureBody.insertRow(),balance=monthlyBalance(month);
+  const vals=[String(month),fmt(n('income')),fmt(futureExpense(month)),fmt(n('reserve')),balance<0?'Thiếu '+fmt(-balance):fmt(balance),fmt(forecastSavings(month))];
+  for(const value of vals)row.insertCell().textContent=value;
+ }
+ report.append(future);
+ const note=document.createElement('p');note.className='printnote';
+ note.textContent='Dự toán minh họa. Thu nhập và quỹ dự phòng được giữ cố định; chi phí tăng đều theo kịch bản lạm phát đã chọn. CPI 4,57% là số quan sát lịch sử, không phải dự báo; chênh lệch giá địa phương không được dùng để tự điều chỉnh số tiền bạn nhập. Mọi mức tối thiểu là do người dùng xác nhận. Số tích lũy chưa trừ các khoản thâm hụt tháng khác hoặc phát sinh bất ngờ.';
+ report.append(note);
+ const source=document.createElement('p');source.className='printsources';
+ source.textContent='Nguồn dữ liệu bối cảnh: Cục Thống kê Việt Nam (CPI 2026, SCOLI 2025, KSMS 2024). Không bao gồm so sánh ngân hàng hay thông tin lãi suất.';
+ report.append(source);
+ window.print();
+}
 async function fetchAI(){if(!aiReady||!comparisonPayload)return;const btn=$('aiCompare');btn.disabled=true;btn.textContent='Đang phân tích…';try{const res=await fetch('/api/compare',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({summary:comparisonPayload})});const data=await res.json();if(!res.ok)throw Error(data.error||'AI lỗi');$('status').textContent='● Gemini đã phản hồi thành công';$('compareInsight').textContent='✦ Gemini AI:\n'+data.text+'\n\nĐây là mô phỏng. Cần xác nhận điều kiện gửi tiền khi thực hiện.'}catch(e){$('status').textContent='● Gemini lỗi · Xem thông báo';$('compareInsight').textContent+='\n\nGemini chưa trả lời: '+e.message}finally{btn.disabled=false;btn.textContent='✦ Phân tích thêm bằng AI'}}
 async function refreshRates(){if(!serverReady){$('rateMessage').textContent='Đang mở HTML offline nên chưa thể làm mới. Chạy bản Python có Internet để tải lại bảng công bố.';return}const btn=$('refresh');btn.disabled=true;btn.textContent='Đang kiểm tra nguồn…';try{const r=await fetch('/api/rates?refresh=1');const data=await r.json();if(!r.ok)throw Error(data.error||'Lỗi cập nhật');db=data;populateBanks();$('rateMessage').textContent=data.refresh_error?`Không xác minh được biểu mới: ${data.refresh_error}. Đang giữ snapshot ${db.as_of}.`:`Đã xác nhận bảng lãi ${db.as_of} từ nguồn MoMo.`;syncAll()}catch(e){$('rateMessage').textContent='Không thể cập nhật: '+e.message+'. Giữ dữ liệu đã có.'}finally{btn.disabled=false;btn.textContent='↻ Cập nhật bảng lãi'}}
 async function connect(){
@@ -376,7 +456,7 @@ $('tab1').onclick=()=>switchView(1);$('tab2').onclick=()=>switchView(2);$('next'
 $('suggest').onclick=suggest;$('tryFlexible').onclick=()=>{for(const id of evidence.rules.optional){const st=state[id];st.locked=false;st.floor=Math.round(st.original*.85/10000)*10000;}applied=false;$('apply').disabled=false;renderBudget();syncAll();$('budgetExplanation').textContent='Đã mở giới hạn thử giảm tối đa 15% cho mua sắm và giải trí. Bấm Gợi ý để tính; bạn có thể sửa mức tối thiểu trước khi áp dụng.'};$('reserveHelper').onclick=()=>{const amount=Number($('reserveHelper').dataset.proposed);if(Number.isFinite(amount)&&amount>=0){$('reserve').value=amount;syncAll()}};$('apply').onclick=()=>{applied=true;$('apply').disabled=true;$('budgetMode').textContent='✓ Đã áp dụng';$('budgetExplanation').textContent='Đã dùng ngân sách này cho tính toán và so sánh ngân hàng.';syncAll()};$('reset').onclick=init;
 ['goal','price','current','income','targetMonths','reserve','livingArea','inflationScenario'].forEach(id=>$(id).addEventListener('input',()=>{syncAll()}));$('strength').oninput=()=>{$('strengthName').textContent=['Nhẹ nhàng','Cân bằng','Quyết tâm'][n('strength')-1]};
 $('depositMonth').onchange=()=>syncDeposit(true);$('principal').oninput=()=>{depositManual=true;renderCompare()};$('priority').onchange=renderCompare;$('ownBank').onchange=updateOwnBank;$('ownBankOther').oninput=()=>{selectedBankId='';renderCompare()};$('compare').onclick=renderCompare;$('refresh').onclick=refreshRates;
-['allTerm','sortRates'].forEach(id=>$(id).addEventListener('change',()=>renderBankList()));['withdrawMonth','withdrawAmount'].forEach(id=>$(id).addEventListener('input',renderWithdrawal));$('aiCompare').onclick=fetchAI;$('download').onclick=exportPlan;
+['allTerm','sortRates'].forEach(id=>$(id).addEventListener('change',()=>renderBankList()));['withdrawMonth','withdrawAmount'].forEach(id=>$(id).addEventListener('input',renderWithdrawal));$('aiCompare').onclick=fetchAI;$('exportBudget').onclick=exportBudgetPDF;
 if(!aiReady)$('suggest').textContent='Gợi ý ngân sách';$('rateSource').href=db.source_url;$('dataDate').textContent='Cập nhật trên nguồn: '+db.as_of.split('-').reverse().join('/')+' · '+db.banks.length+' ngân hàng';init();connect();
 })();
 </script>
