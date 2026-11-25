@@ -70,17 +70,50 @@ def refresh_rates()->dict:
         current['refresh_error']=f'Không cập nhật được từ nguồn chính thức ({type(exc).__name__}). Giữ bảng đã lưu.'
     return current
 
+class GeminiAPIError(Exception):
+    """Safe, public-facing Gemini failure details; never expose secrets or provider bodies."""
+    def __init__(self,status:int,message:str):
+        self.status=status
+        super().__init__(message)
+
+
+def explain_gemini_error(response):
+    status=response.status_code
+    try:
+        detail=response.json().get('error',{})
+        description=str(detail.get('message','')).lower()
+    except (ValueError,TypeError,AttributeError):
+        description=''
+    if status in (400,401):
+        if 'api key' in description or 'api_key' in description or 'api-key' in description:
+            return 'API key không hợp lệ hoặc bị thu hồi. Tạo key mới trong Google AI Studio và cập nhật GEMINI_API_KEY trên Render.'
+        return 'Google từ chối tham số yêu cầu. Kiểm tra model đang chọn và quyền hỗ trợ JSON output.'
+    if status==402:
+        return 'Project cần kiểm tra tín dụng hoặc thanh toán trong Google AI Studio.'
+    if status==403:
+        return 'Project/API key không có quyền gọi model này. Kiểm tra API restrictions, quyền project và billing trong Google AI Studio.'
+    if status==404:
+        return 'Không tìm thấy model hoặc project chưa có quyền dùng model. Kiểm tra GEMINI_MODEL và model có sẵn trong Google AI Studio.'
+    if status==429:
+        return 'Đã chạm giới hạn quota/rate limit. Kiểm tra Usage và Rate Limits trong Google AI Studio, tránh bấm liên tục.'
+    if status in (500,502,503,504):
+        return 'Dịch vụ Google đang lỗi hoặc quá tải. Thử lại sau và kiểm tra trạng thái Gemini API.'
+    return 'Google từ chối yêu cầu. Xem mã lỗi HTTP và kiểm tra cài đặt project trong Google AI Studio.'
+
+
 def call_gemini(prompt:str,as_json:bool=False):
     if not API_KEY:raise RuntimeError('Chưa cấu hình GEMINI_API_KEY')
-    generation={'temperature':0.15,'maxOutputTokens':1100}
+    generation={'temperature':0.15,'maxOutputTokens':1600}
     if as_json:generation['responseMimeType']='application/json'
     body={'contents':[{'parts':[{'text':prompt}]}],'generationConfig':generation}
     r=requests.post(f'https://generativelanguage.googleapis.com/v1beta/models/{MODEL}:generateContent',
                     headers={'x-goog-api-key':API_KEY,'Content-Type':'application/json'},json=body,timeout=(5,35))
-    r.raise_for_status()
+    if not r.ok:
+        # Only safe categorized messages reach the browser; API key and full Google response are never logged.
+        raise GeminiAPIError(r.status_code,explain_gemini_error(r))
     parts=r.json().get('candidates',[{}])[0].get('content',{}).get('parts',[])
     response='\n'.join(x.get('text','') for x in parts if isinstance(x,dict)).strip()
-    if not response:raise ValueError('AI không trả kết quả')
+    if not response:raise ValueError('Gemini không trả văn bản. Có thể đã hết giới hạn output tokens hoặc phản hồi bị chặn.')
     return response[:6000]
 
 def ai_budget(data:dict)->dict:
@@ -151,9 +184,16 @@ class Handler(BaseHTTPRequestHandler):
             if not isinstance(data,dict):raise ValueError('JSON không hợp lệ')
             value=ai_budget(data) if route=='/api/budget' else ai_compare(data)
             return self.response_json(200,value)
-        except (ValueError,KeyError,TypeError,json.JSONDecodeError):return self.response_json(400,{'error':'Dữ liệu/đầu ra AI không hợp lệ'})
-        except requests.RequestException:return self.response_json(502,{'error':'Không thể kết nối Gemini. Kiểm tra API key, quota, mạng.'})
-        except Exception:return self.response_json(500,{'error':'Lỗi xử lý AI'})
+        except GeminiAPIError as exc:
+            return self.response_json(502,{'error':f'Gemini HTTP {exc.status}: {str(exc)}','provider_http_status':exc.status})
+        except requests.Timeout:
+            return self.response_json(504,{'error':'Kết nối Gemini hết thời gian chờ. Kiểm tra mạng và thử lại.'})
+        except requests.RequestException:
+            return self.response_json(502,{'error':'Máy chủ không kết nối được tới Google. Kiểm tra mạng trên Render.'})
+        except (ValueError,KeyError,TypeError,json.JSONDecodeError):
+            return self.response_json(422,{'error':'Gemini phản hồi không đúng định dạng hoặc dữ liệu đầu vào không hợp lệ.'})
+        except Exception:
+            return self.response_json(500,{'error':'Lỗi máy chủ khi xử lý AI.'})
 
 if __name__=='__main__':
     print(f'GoalWise AI — http://127.0.0.1:{PORT}')
