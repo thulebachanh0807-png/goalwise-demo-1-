@@ -71,7 +71,7 @@
       0.2,
       0.3
     ],
-    "floor_policy": "No minimum-spend fields. Essentials are protected from automatic cuts; only shopping and leisure are eligible for AI/rule-based reductions with 10%, 20%, 30% caps by intensity. Users can unlock essential categories to manually edit their planned amounts. Regional CPI and SCOLI are contextual, never used to invent individual prices or floors.",
+    "floor_policy": "Only housing and uncategorized Other are locked by default. Food, transport and utility bills may be reduced within small category-specific design limits, while shopping and leisure have larger caps. These are cautious prototype guardrails, not empirically verified local prices. All AI suggestions need user approval.",
     "inflation_scenarios": [
       {
         "id": "flat",
@@ -90,6 +90,47 @@
       }
     ],
     "eta_limit_months": 120,
-    "location_policy": "Use location only to display contextual benchmark; do not multiply observed expenses by SCOLI."
+    "location_policy": "Use location only to display contextual benchmark; do not multiply observed expenses by SCOLI.",
+    "default_locked": [
+      "home",
+      "other"
+    ],
+    "category_cut_caps": {
+      "home": [
+        0,
+        0,
+        0
+      ],
+      "food": [
+        0.02,
+        0.05,
+        0.08
+      ],
+      "travel": [
+        0,
+        0.03,
+        0.05
+      ],
+      "bills": [
+        0,
+        0.02,
+        0.04
+      ],
+      "shopping": [
+        0.1,
+        0.2,
+        0.3
+      ],
+      "fun": [
+        0.1,
+        0.2,
+        0.3
+      ],
+      "other": [
+        0,
+        0.02,
+        0.04
+      ]
+    }
   }
 }
