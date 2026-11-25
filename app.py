@@ -21,6 +21,9 @@ LOCK=Lock()
 API_KEY=os.getenv('OPENAI_API_KEY','').strip()
 MODEL=os.getenv('OPENAI_MODEL','gpt-5-mini').strip()
 OPENAI_URL='https://api.openai.com/v1/responses'
+AI_MAX_CALLS_PER_HOUR=max(1,min(500,int(os.getenv('GOALWISE_AI_MAX_CALLS_PER_HOUR','40'))))
+AI_USAGE_LOCK=Lock()
+AI_USAGE_WINDOW=[]
 PORT=int(os.getenv('PORT',os.getenv('GOALWISE_PORT','8768')))
 SOURCE_URL='https://www.momo.vn/tai-chinh/gui-tiet-kiem'
 BANK_LABELS={'mbv':'MBV','bvbank':'BVBank','mbbank':'MBBank','vietcombank':'Vietcombank','bidv':'BIDV','vietinbank':'Vietinbank','techcombank':'Techcombank','agribank':'Agribank'}
@@ -159,6 +162,16 @@ def check_openai_model():
     return {'provider':'OpenAI','configured_model':MODEL,'model_found':True,
             'note':'Model và key hợp lệ cho bước tra cứu; cần thử nút AI để xác minh tạo nội dung thực tế.'}
 
+def reserve_ai_slot():
+    """Global in-memory demo guardrail. Set platform billing limits too."""
+    now=time.monotonic()
+    with AI_USAGE_LOCK:
+        AI_USAGE_WINDOW[:]=[t for t in AI_USAGE_WINDOW if now-t<3600]
+        if len(AI_USAGE_WINDOW)>=AI_MAX_CALLS_PER_HOUR:return False
+        AI_USAGE_WINDOW.append(now)
+        return True
+
+
 def ai_budget(data:dict)->dict:
     raw=data.get('categories')
     if not isinstance(raw,list) or len(raw)!=7:raise ValueError('Cần đủ 7 nhóm chi tiêu')
@@ -253,6 +266,8 @@ class Handler(BaseHTTPRequestHandler):
             if length<2 or length>7000:return self.response_json(413,{'error':'Dữ liệu quá dài'})
             data=json.loads(self.rfile.read(length))
             if not isinstance(data,dict):raise ValueError('JSON không hợp lệ')
+            if not reserve_ai_slot():
+                return self.response_json(429,{'error':'Bản demo đã đạt giới hạn lượt gọi GPT trong giờ này. Hãy dùng gợi ý ngân sách dự phòng hoặc thử lại sau.'})
             value=ai_budget(data) if route=='/api/budget' else ai_compare(data)
             return self.response_json(200,value)
         except OpenAIAPIError as exc:
