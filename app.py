@@ -18,7 +18,7 @@ CATALOG=json.loads(DATA_FILE.read_text(encoding='utf-8'))
 LOCK=Lock()
 API_KEY=os.getenv('GEMINI_API_KEY','').strip()
 MODEL=os.getenv('GEMINI_MODEL','gemini-2.5-flash').strip()
-PORT=int(os.getenv('GOALWISE_PORT','8768'))
+PORT=int(os.getenv('PORT',os.getenv('GOALWISE_PORT','8768')))
 SOURCE_URL='https://www.momo.vn/tai-chinh/gui-tiet-kiem'
 BANK_LABELS={'mbv':'MBV','bvbank':'BVBank','mbbank':'MBBank','vietcombank':'Vietcombank','bidv':'BIDV','vietinbank':'Vietinbank','techcombank':'Techcombank','agribank':'Agribank'}
 TERMS=['1','2','3','4','5','6','9','12','24']
@@ -158,4 +158,4 @@ class Handler(BaseHTTPRequestHandler):
 if __name__=='__main__':
     print(f'GoalWise AI — http://127.0.0.1:{PORT}')
     print('Gemini:', 'enabled' if API_KEY else 'not configured; offline rule suggestions available')
-    ThreadingHTTPServer(('127.0.0.1',PORT),Handler).serve_forever()
+    ThreadingHTTPServer(('0.0.0.0',PORT),Handler).serve_forever()
