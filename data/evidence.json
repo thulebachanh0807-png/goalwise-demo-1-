@@ -1,0 +1,95 @@
+{
+  "schema_version": "1.0",
+  "snapshot_date": "2026-11-25",
+  "origin": "GoalWise_Database(1).xlsx (user-supplied)",
+  "sources": {
+    "S01": {
+      "name": "NSO CPI 10 tháng 2026",
+      "url": "https://www.nso.gov.vn/bai-top/2026/11/bao-cao-tinh-hinh-kinh-te-xa-hoi-thang-muoi-va-10-thang-nam-2026/",
+      "period": "Jan–Oct 2026 vs Jan–Oct 2025"
+    },
+    "S02": {
+      "name": "NSO SCOLI 2025",
+      "url": "https://www.nso.gov.vn/du-lieu-va-so-lieu-thong-ke/2026/04/thong-cao-bao-chi-chi-so-gia-sinh-hoat-theo-khong-gian-nam-2025/",
+      "period": "2025"
+    },
+    "S03": {
+      "name": "NSO KSMS 2024",
+      "url": "https://www.nso.gov.vn/tin-tuc-thong-ke/2025/05/thong-cao-bao-chi-ket-qua-khao-sat-muc-song-dan-cu-nam-2024/",
+      "period": "2024"
+    },
+    "S06": {
+      "name": "CFPB Your Money, Your Goals",
+      "url": "https://www.consumerfinance.gov/consumer-tools/educator-tools/your-money-your-goals/toolkit/"
+    },
+    "S10": {
+      "name": "SEC Savings Goal Calculator",
+      "url": "https://www.investor.gov/financial-tools-calculators/calculators/savings-goal-calculator"
+    },
+    "S24": {
+      "name": "NIST AI RMF",
+      "url": "https://www.nist.gov/itl/ai-risk-management-framework"
+    }
+  },
+  "cpi": {
+    "observed_pct": 4.57,
+    "period": "Jan–Oct 2026 vs Jan–Oct 2025",
+    "source_id": "S01",
+    "note": "Historical comparison. NOT a forward inflation forecast."
+  },
+  "spatial": {
+    "base": "Hà Nội = 100",
+    "year": 2025,
+    "values": {
+      "hn": 100,
+      "hcm": 97.96
+    },
+    "source_id": "S02",
+    "note": "Aggregate basket indices, not category-level prices or personal minimums."
+  },
+  "spending": {
+    "year": 2024,
+    "urban_per_person_month": 3800000,
+    "rural_per_person_month": 2500000,
+    "source_id": "S03",
+    "note": "Approximate per-person monthly AVERAGES, not minimum living costs."
+  },
+  "rules": {
+    "essential": [
+      "home",
+      "food",
+      "travel",
+      "bills",
+      "other"
+    ],
+    "optional": [
+      "shopping",
+      "fun"
+    ],
+    "cut_caps": [
+      0.15,
+      0.3,
+      0.45
+    ],
+    "floor_policy": "The user must explicitly allow discretionary reductions or set personal minimum spending. Default floors equal current spending; no automatic geographic adjustment.",
+    "inflation_scenarios": [
+      {
+        "id": "flat",
+        "pct": 0,
+        "kind": "illustrative"
+      },
+      {
+        "id": "historic",
+        "pct": 4.57,
+        "kind": "historical_proxy_not_forecast"
+      },
+      {
+        "id": "stress",
+        "pct": 7,
+        "kind": "illustrative"
+      }
+    ],
+    "eta_limit_months": 120,
+    "location_policy": "Use location only to display contextual benchmark; do not multiply observed expenses by SCOLI."
+  }
+}
