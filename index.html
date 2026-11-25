@@ -134,7 +134,8 @@ function renderBudget(){
    const old=st.original;st.original=value;
    if(st.floor===old)st.floor=value;else st.floor=Math.min(st.floor,value);
    if(st.locked||st.proposed===old||st.proposed>value)st.proposed=value;
-   applied=false;$('apply').disabled=false;renderBudget();syncAll();
+   prop.value=st.proposed;floor.value=st.floor;
+   applied=false;$('apply').disabled=false;syncAll();
   });
   prop.addEventListener('input',()=>{
    const value=Number(prop.value);if(!Number.isFinite(value)||value<0)return;
@@ -158,9 +159,12 @@ function renderBudget(){
 }
 
 function localSuggestion(){
- const month=Math.max(1,n('targetMonths'));let gap=Math.max(0,(n('price')-n('current'))/month-surplus('original'));
- const level=Math.max(0,Math.min(2,n('strength')-1)),cutCap=evidence.rules.cut_caps[level];
+ const month=Math.max(1,n('targetMonths'));
  for(const c of cats)state[c.id].proposed=state[c.id].original;
+ let baseline=0;for(let m=1;m<=Math.min(month,60);m++)baseline+=monthlyBalance(m);
+ baseline=baseline/Math.min(month,60);
+ let gap=Math.max(0,(n('price')-n('current'))/month-baseline);
+ const level=Math.max(0,Math.min(2,n('strength')-1)),cutCap=evidence.rules.cut_caps[level];
  const lines=[];
  for(const id of order){
   const c=cats.find(x=>x.id===id),st=state[id];
@@ -189,7 +193,7 @@ async function suggest(){
  let lines=[],fromAI=false,aiError='';
  try{
   if(aiReady){
-   const payload={income:n('income'),reserve:n('reserve'),goal_price:n('price'),current_savings:n('current'),target_months:n('targetMonths'),intensity:n('strength'),categories:cats.map(c=>({id:c.id,spend:state[c.id].original,locked:state[c.id].locked,max_cut_pct:state[c.id].locked?0:Math.max(0,Math.min(evidence.rules.cut_caps[n('strength')-1]*100,(state[c.id].original-state[c.id].floor)/Math.max(1,state[c.id].original)*100))}))};
+   const payload={income:n('income'),reserve:n('reserve'),goal_price:n('price'),current_savings:n('current'),target_months:n('targetMonths'),intensity:n('strength'),living_area:$('livingArea').value,inflation_scenario_pct:n('inflationScenario'),categories:cats.map(c=>({id:c.id,spend:state[c.id].original,locked:state[c.id].locked,max_cut_pct:state[c.id].locked?0:Math.max(0,Math.min(evidence.rules.cut_caps[n('strength')-1]*100,(state[c.id].original-state[c.id].floor)/Math.max(1,state[c.id].original)*100))}))};
    const r=await fetch('/api/budget',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
    const data=await r.json();if(!r.ok||!data.cuts)throw Error(data.error||'AI chưa có kết quả');
    lines=applyAICuts(data.cuts);fromAI=true;$('status').textContent='● Gemini đã phản hồi thành công';
