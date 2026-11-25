@@ -115,3 +115,11 @@ Use **Xuất thu–chi (PDF)** in Step 1, then in the browser print dialog selec
 
 ### Streamlined budget inputs
 The minimum spending field has been removed from each budget row. Users now see **current expense → suggested expense → lock**. Housing, food, travel, bills, and other/essential categories start locked from automated adjustments. Automated cuts are allowed only for shopping and leisure, capped at 10% / 20% / 30% according to the selected intensity. Users may unlock an essential category to edit it manually; the AI still cannot automatically cut that category. The budget-only PDF export no longer includes minimum-spending columns.
+
+
+### Budget recommendations: flexible, not arbitrary (revision)
+- By default **housing** and **uncategorized Other** remain locked. Food, travel and utility bills may be adjusted modestly within category-specific app guardrails; shopping and leisure are prioritized.
+- The three user-selected intensities apply illustrative monthly cut caps (light / balanced / stronger): food 2%/5%/8%, transport 0%/3%/5%, utilities 0%/2%/4%, shopping 10%/20%/30%, leisure 10%/20%/30%, other 0%/2%/4% if manually unlocked, housing 0%. These caps are **design assumptions**, not local market price estimates.
+- A lock prevents any automatic reduction. All suggested amounts remain user-editable and require the user to select **Áp dụng** before being treated as their plan.
+- The home screen defaults to an illustrative **constant-cost baseline (0% inflation)**. Users can explicitly simulate the historical 4.57% CPI proxy or 7% price shock; neither should be presented as a forecast.
+- When the desired date cannot be met, GoalWise shows an estimated amount available at that date and the **additional monthly cashflow required**. It does not invent a target date; with a stable-cost baseline and the example of 7m income, 6.65m expenses and 300k reserve, balanced suggestions allow about **560,000 VND/month**, reaching a 12m goal from 2m already saved in about **18 months**.
