@@ -8,7 +8,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import urlparse, parse_qs
 from threading import Lock
-import json, os, re
+import json, os, re, time
 import requests
 from bs4 import BeautifulSoup
 
@@ -101,19 +101,84 @@ def explain_gemini_error(response):
     return 'Google từ chối yêu cầu. Xem mã lỗi HTTP và kiểm tra cài đặt project trong Google AI Studio.'
 
 
+# Model discovery is a hint only: listing a model does not guarantee generateContent access.
+MODEL_CHOICES=('gemini-3.5-flash-lite','gemini-3.1-flash-lite','gemini-3.6-flash','gemini-3.5-flash','gemini-3.8-flash')
+MODEL_CACHE={'time':0.0,'names':[]}
+MODEL_CACHE_LOCK=Lock()
+ACTIVE_MODEL=None
+
+
+def list_generation_models():
+    now=time.monotonic()
+    with MODEL_CACHE_LOCK:
+        if MODEL_CACHE['time'] and now-MODEL_CACHE['time']<600:
+            return MODEL_CACHE['names'][:]
+    results=[]
+    page_token=None
+    for _ in range(3):
+        params={'pageSize':100}
+        if page_token:params['pageToken']=page_token
+        r=requests.get('https://generativelanguage.googleapis.com/v1beta/models',
+                       headers={'x-goog-api-key':API_KEY},params=params,timeout=(4,12))
+        if not r.ok:
+            raise GeminiAPIError(r.status_code,explain_gemini_error(r))
+        payload=r.json()
+        for entry in payload.get('models',[]):
+            if 'generateContent' not in entry.get('supportedGenerationMethods',[]):
+                continue
+            name=str(entry.get('name','')).removeprefix('models/')
+            if name.startswith('gemini-') and name not in results:
+                results.append(name)
+        page_token=payload.get('nextPageToken')
+        if not page_token:break
+    with MODEL_CACHE_LOCK:
+        MODEL_CACHE['names']=results[:]
+        MODEL_CACHE['time']=time.monotonic()
+    return results
+
+
 def call_gemini(prompt:str,as_json:bool=False):
+    global ACTIVE_MODEL
     if not API_KEY:raise RuntimeError('Chưa cấu hình GEMINI_API_KEY')
     generation={'temperature':0.15,'maxOutputTokens':1600}
     if as_json:generation['responseMimeType']='application/json'
     body={'contents':[{'parts':[{'text':prompt}]}],'generationConfig':generation}
-    r=requests.post(f'https://generativelanguage.googleapis.com/v1beta/models/{MODEL}:generateContent',
-                    headers={'x-goog-api-key':API_KEY,'Content-Type':'application/json'},json=body,timeout=(5,35))
+
+    def generate(model):
+        return requests.post(
+            f'https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent',
+            headers={'x-goog-api-key':API_KEY,'Content-Type':'application/json'},
+            json=body,timeout=(5,30))
+
+    chosen=ACTIVE_MODEL or MODEL
+    r=generate(chosen)
+    checked_models=[chosen]
+    if r.status_code==404:
+        # Try at most two documented, discovered models; avoid guessing unavailable IDs.
+        try:discovered=list_generation_models()
+        except (GeminiAPIError,requests.RequestException,ValueError):discovered=[]
+        alternatives=[m for m in MODEL_CHOICES if m in discovered and m!=chosen]
+        for candidate in alternatives[:2]:
+            checked_models.append(candidate)
+            trial=generate(candidate)
+            r=trial
+            if trial.ok:
+                ACTIVE_MODEL=candidate
+                break
+            # A different error (quota, access, invalid key) requires user action.
+            if trial.status_code!=404:
+                break
+
     if not r.ok:
-        # Only safe categorized messages reach the browser; API key and full Google response are never logged.
-        raise GeminiAPIError(r.status_code,explain_gemini_error(r))
+        message=explain_gemini_error(r)
+        if r.status_code==404:
+            message+=' Đã thử: '+', '.join(checked_models)+'. Hãy kiểm tra danh sách model của project hoặc project/key khác.'
+        raise GeminiAPIError(r.status_code,message)
+    if not ACTIVE_MODEL:
+        ACTIVE_MODEL=chosen
     parts=r.json().get('candidates',[{}])[0].get('content',{}).get('parts',[])
     response='\n'.join(x.get('text','') for x in parts if isinstance(x,dict)).strip()
-    if not response:raise ValueError('Gemini không trả văn bản. Có thể đã hết giới hạn output tokens hoặc phản hồi bị chặn.')
+    if not response:raise ValueError('Gemini không trả văn bản. Có thể phản hồi bị chặn hoặc không đủ output tokens.')
     return response[:6000]
 
 def ai_budget(data:dict)->dict:
@@ -168,7 +233,20 @@ class Handler(BaseHTTPRequestHandler):
             self.send_response(200);self.send_header('Content-Type','text/html; charset=utf-8')
             self.send_header('Content-Length',str(len(raw)));self.send_header('Cache-Control','no-store')
             self.end_headers();self.wfile.write(raw);return
-        if route.path=='/api/health':return self.response_json(200,{'ai_ready':bool(API_KEY),'model':MODEL})
+        if route.path=='/api/health':
+            return self.response_json(200,{'ai_ready':bool(API_KEY),'model':MODEL,'active_model':ACTIVE_MODEL})
+        if route.path=='/api/models-check':
+            if not API_KEY:return self.response_json(503,{'error':'Chưa cấu hình Gemini API key'})
+            try:
+                found=list_generation_models()
+                preferred=[m for m in MODEL_CHOICES if m in found]
+                return self.response_json(200,{'configured_model':MODEL,'active_model':ACTIVE_MODEL,
+                    'recommended_models_found':preferred,'total_generation_models':len(found),
+                    'note':'Danh sách model không bảo đảm quyền gọi generateContent.'})
+            except GeminiAPIError as exc:
+                return self.response_json(502,{'error':f'Gemini HTTP {exc.status}: {str(exc)}'})
+            except requests.RequestException:
+                return self.response_json(502,{'error':'Không thể tải danh sách model từ Google.'})
         if route.path=='/api/rates':
             data=refresh_rates() if parse_qs(route.query).get('refresh',['0'])[0]=='1' else CATALOG
             return self.response_json(200,data)
