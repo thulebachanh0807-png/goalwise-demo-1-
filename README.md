@@ -91,3 +91,23 @@ GitHub was connected during development, but **no editable repository was return
 - **Rút linh hoạt**: ưu tiên lựa chọn kỳ hạn ngắn; **Lãi cao**: so sánh lựa chọn theo lãi dự kiến.
 - Ngân hàng ngoài đối tác chỉ có dữ liệu lãi tham khảo, **chưa xác minh mức gửi tối thiểu**, không coi là sản phẩm đủ điều kiện để mở sổ.
 - Chỉ xét kỳ hạn không vượt thời gian còn lại đến mục tiêu mua sắm.
+
+
+## Budget intelligence update — 25 November 2026
+
+The budgeting screen now reads the **user-supplied** `GoalWise_Database(1).xlsx` evidence, transcribed into `data/evidence.json` and embedded into `index.html`. Evidence includes NSO CPI 10-month 2026 +4.57% (historical observation), 2025 SCOLI for Hanoi (100) and HCMC (97.96), and approximate urban/rural 2024 monthly per-person consumption (3.8m/2.5m VND). These are **NOT location-specific prices, personal minimum spending levels, or an inflation forecast**.
+
+### How recommendations work
+- First choose area and an illustrative inflation scenario: flat 0%, historical proxy 4.57%, or stress 7%.
+- All seven category minimums default to **the user's current spending**. Essential categories start locked. Nothing is reduced automatically merely because of an area average or inflation figure.
+- To try an opt-in scenario, use **Thử giảm mua sắm & giải trí tối đa 15%**, or unlock a category and explicitly lower its minimum. AI/rule-based suggestions can never exceed the corresponding user-defined maximum reduction. The user must approve the new budget.
+- Month-by-month projections apply the selected broad inflation scenario to the already-approved nominal expense baseline, with unchanged nominal income and reserve. Monthly deficits reduce accumulated savings. This is a transparent illustrative cash-flow scenario, not a forecast of user-specific inflation.
+- The original budget is editable; do not enter account numbers, credentials, OTPs, or personally identifying information. In Gemini mode, submitted expense numbers and optional contextual choices are sent to Google.
+
+### PDF income-and-expense report (no bank information)
+Use **Xuất thu–chi (PDF)** in Step 1, then in the browser print dialog select **Save as PDF**. This exports the summary of income, current/planned expenses, user floors, reserve and 12-month cash-flow projection. Bank recommendations, banks, interest rates and bank account choices are deliberately excluded. On phones use the operating system's print/share-to-PDF option where available.
+
+### Limitations and data maintenance
+- Source spreadsheet has aggregate CPI, SCOLI and regional averages, **not prices for food, rents and transport by region**. Before claiming market-specific recommendations, collect and verify regularly dated, category-level local prices, household-size details, and sample coverage.
+- Source URLs are in `data/evidence.json`. For a new release, update the snapshot and verify official links. Never rewrite historical CPI as a forward prediction.
+- Gemini API key presence is not proof that inference succeeds. If Google rejects model/API access, offline rule-based suggestions continue and the UI shows the error.
