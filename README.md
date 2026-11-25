@@ -111,3 +111,7 @@ Use **Xuất thu–chi (PDF)** in Step 1, then in the browser print dialog selec
 - Source spreadsheet has aggregate CPI, SCOLI and regional averages, **not prices for food, rents and transport by region**. Before claiming market-specific recommendations, collect and verify regularly dated, category-level local prices, household-size details, and sample coverage.
 - Source URLs are in `data/evidence.json`. For a new release, update the snapshot and verify official links. Never rewrite historical CPI as a forward prediction.
 - Gemini API key presence is not proof that inference succeeds. If Google rejects model/API access, offline rule-based suggestions continue and the UI shows the error.
+
+
+### Streamlined budget inputs
+The minimum spending field has been removed from each budget row. Users now see **current expense → suggested expense → lock**. Housing, food, travel, bills, and other/essential categories start locked from automated adjustments. Automated cuts are allowed only for shopping and leisure, capped at 10% / 20% / 30% according to the selected intensity. Users may unlock an essential category to edit it manually; the AI still cannot automatically cut that category. The budget-only PDF export no longer includes minimum-spending columns.
