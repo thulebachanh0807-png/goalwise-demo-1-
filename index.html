@@ -31,13 +31,17 @@
 <div class="field"><label for="current">Đã tiết kiệm (đ)</label><input type="number" id="current" min="0" step="100000" value="2000000"></div>
 <div class="field"><label for="income">Thu nhập/tháng (đ)</label><input type="number" id="income" min="0" step="100000" value="7000000"></div>
 <div class="field"><label for="targetMonths">Muốn đạt sau (tháng)</label><input type="number" id="targetMonths" min="1" max="60" step="1" value="8"></div>
+<div class="field"><label for="livingArea">Khu vực sinh sống</label><select id="livingArea"><option value="hcm">TP.HCM</option><option value="hn">Hà Nội</option><option value="urban">Đô thị khác</option><option value="rural">Nông thôn</option><option value="other">Khu vực khác</option></select></div>
+<div class="field"><label for="inflationScenario">Kịch bản chi phí 12 tháng</label><select id="inflationScenario"><option value="0">Giá không đổi (giả định)</option><option value="4.57" selected>CPI +4,57%/năm (tham chiếu)</option><option value="7">Giá tăng +7%/năm (giả định)</option></select></div>
+<div class="field full"><div id="marketContext" class="marketcontext" aria-live="polite"></div></div>
 <div class="field full"><label for="reserve">Quỹ dự phòng thêm mỗi tháng (đ)</label><input type="number" id="reserve" min="0" step="50000" value="300000"><div class="hint">Khoản để riêng <b>ngoài</b> 7 khoản chi. Nếu đã tính trong chi tiêu, hãy nhập 0đ để tránh trừ hai lần.</div></div>
 </div></section>
 <section class="card"><div class="flex between" style="align-items:flex-start"><div><span class="sectiontag">AI BUDGET OPTIMIZER</span><h2>Điều chỉnh thu chi</h2></div><span class="badge" id="budgetMode">Chưa đề xuất</span></div>
 <div class="budgethead"><span>Khoản chi</span><span>Hiện tại (đ)</span><span>Đề xuất (đ)</span><span aria-label="Khóa">🔒</span></div><div id="budgetRows"></div>
+<div class="flex optionbar"><button type="button" class="button outline sm" id="tryFlexible">Thử giảm mua sắm & giải trí tối đa 15%</button><span class="hint">Không tự cắt tiền ăn, nhà ở hoặc khoản đã khóa. Sửa mức tối thiểu của từng mục nếu cần.</span></div>
 <div class="separator"></div><div class="flex between"><label for="strength" style="font-size:12px;font-weight:750">Mức điều chỉnh</label><b style="color:#b31570" id="strengthName">Cân bằng</b></div><input class="range" type="range" id="strength" min="1" max="3" step="1" value="2">
 <div class="actions"><button type="button" id="suggest" class="button primary">✦ AI đề xuất ngân sách</button><button type="button" id="apply" class="button outline" disabled>Áp dụng</button><button type="button" id="reset" class="button secondary">Đặt lại</button></div><div id="budgetExplanation" class="alert neutral" aria-live="polite">Khóa các khoản cần giữ nguyên. Bạn có thể sửa từng con số sau khi nhận đề xuất.</div></section>
-</div><aside class="stack sticky"><section class="card"><span class="sectiontag">KẾT QUẢ</span><div class="fine">Có thể dành ra mỗi tháng</div><div class="resultvalue" id="monthly">—</div><div class="budgetmath" id="budgetMath" aria-live="polite"></div><button type="button" class="button outline sm" id="reserveHelper" hidden>Thử thay đổi quỹ dự phòng</button><div class="metricgrid"><div class="metric"><small>Trước điều chỉnh</small><strong id="before">—</strong></div><div class="metric"><small>Tăng tiết kiệm</small><strong id="gain">—</strong></div><div class="metric"><small>Đạt mục tiêu sau</small><strong id="eta">—</strong></div><div class="metric"><small>So với kế hoạch</small><strong id="feasible">—</strong></div></div><h3>Tiến độ tích lũy</h3><div class="timeline" id="timeline"></div><div class="alert" id="plannerWarning" aria-live="polite"></div><button type="button" class="button primary wide" id="next" style="margin-top:14px">Tiếp tục chọn ngân hàng →</button></section>
+</div><aside class="stack sticky"><section class="card"><span class="sectiontag">KẾT QUẢ</span><div class="fine">Có thể dành ra mỗi tháng</div><div class="resultvalue" id="monthly">—</div><div class="budgetmath" id="budgetMath" aria-live="polite"></div><button type="button" class="button outline sm" id="reserveHelper" hidden>Thử thay đổi quỹ dự phòng</button><div class="metricgrid"><div class="metric"><small>Trước điều chỉnh</small><strong id="before">—</strong></div><div class="metric"><small>Tăng tiết kiệm</small><strong id="gain">—</strong></div><div class="metric"><small>Đạt mục tiêu sau</small><strong id="eta">—</strong></div><div class="metric"><small>So với kế hoạch</small><strong id="feasible">—</strong></div></div><h3>Tiến độ tích lũy</h3><div class="timeline" id="timeline"></div><h3 style="margin-top:15px">Dự toán từng tháng</h3><div class="monthscroll"><table class="monthtable"><thead><tr><th>Tháng</th><th>Chi phí ước tính</th><th>Dư để dành</th><th>Tích lũy</th></tr></thead><tbody id="monthlyRows"></tbody></table></div><div class="alert" id="plannerWarning" aria-live="polite"></div><button type="button" class="button primary wide" id="next" style="margin-top:14px">Tiếp tục chọn ngân hàng →</button><button type="button" class="button outline wide" id="exportBudget" style="margin-top:8px">↓ Xuất thu–chi (PDF)</button></section>
 <section class="card"><h3>GoalWise tính như thế nào?</h3><p class="fine" style="margin:0">Ngân sách mới do bạn phê duyệt. Công thức tính tiền và thời gian đạt mục tiêu chạy riêng, không để AI tự đoán.</p></section></aside></div></section>
 <section class="screen" id="screen2"><div class="layout"><div class="stack">
 <section class="card"><span class="sectiontag">AI BANK MATCHER</span><h2>Số tiền này nên gửi ở đâu?</h2><div class="metricgrid"><div class="metric"><small>Tiết kiệm mỗi tháng</small><strong id="bankMonthly">—</strong></div><div class="metric"><small>Đã tích lũy</small><strong id="bankSaved">—</strong></div></div>
@@ -58,39 +62,107 @@
 </section>
 <section class="card"><span class="sectiontag">TÌNH HUỐNG</span><h2>Nếu cần rút tiền sớm?</h2><div class="fields"><div class="field"><label for="withdrawMonth">Rút sau (tháng)</label><select id="withdrawMonth"><option value="1">1 tháng</option><option value="2" selected>2 tháng</option><option value="3">3 tháng</option><option value="4">4 tháng</option><option value="6">6 tháng</option></select></div><div class="field"><label for="withdrawAmount">Muốn rút (đ)</label><input id="withdrawAmount" type="number" min="0" step="100000" value="1000000"></div></div><div class="alert neutral" id="withdrawResult"></div></section>
 </div>
-<aside class="stack sticky"><section class="card"><span class="sectiontag">AI GIẢI THÍCH</span><h2>Vì sao nên cân nhắc?</h2><div class="why" id="compareInsight">Chọn ngân hàng đang dùng và ưu tiên để nhận kết quả phù hợp.</div><div class="actions"><button type="button" id="aiCompare" class="button primary wide" disabled>✦ Phân tích thêm bằng AI</button><button type="button" id="download" class="button outline wide">↓ Tải kế hoạch</button></div></section>
+<aside class="stack sticky"><section class="card"><span class="sectiontag">AI GIẢI THÍCH</span><h2>Vì sao nên cân nhắc?</h2><div class="why" id="compareInsight">Chọn ngân hàng đang dùng và ưu tiên để nhận kết quả phù hợp.</div><div class="actions"><button type="button" id="aiCompare" class="button primary wide" disabled>✦ Phân tích thêm bằng AI</button></div></section>
 <section class="card"><h3>Nguồn lãi suất</h3><div class="fine" id="dataDate">—</div><p class="fine" style="margin:8px 0 13px">Lãi tham khảo, không phải báo giá giao dịch. Xác nhận trên ứng dụng/ngân hàng trước khi gửi.</p><a id="rateSource" class="button outline wide" href="https://www.momo.vn/tai-chinh/gui-tiet-kiem" target="_blank" rel="noopener noreferrer">Xem bảng công bố ↗</a></section></aside>
 </div></section>
 <footer class="footer">GoalWise là nguyên mẫu độc lập lấy cảm hứng từ màu MoMo, chưa được MoMo phê duyệt hay kết nối tài khoản thật. Không nhập OTP, số tài khoản hoặc mật khẩu. Khoản lãi và thời gian mục tiêu là ước tính.</footer>
 </main>
+<section id="budgetPrint" aria-hidden="true"></section>
+<script id="embeddedEvidence" type="application/json">{"schema_version":"1.0","snapshot_date":"2026-11-25","origin":"GoalWise_Database(1).xlsx (user-supplied)","sources":{"S01":{"name":"NSO CPI 10 tháng 2026","url":"https://www.nso.gov.vn/bai-top/2026/11/bao-cao-tinh-hinh-kinh-te-xa-hoi-thang-muoi-va-10-thang-nam-2026/","period":"Jan–Oct 2026 vs Jan–Oct 2025"},"S02":{"name":"NSO SCOLI 2025","url":"https://www.nso.gov.vn/du-lieu-va-so-lieu-thong-ke/2026/04/thong-cao-bao-chi-chi-so-gia-sinh-hoat-theo-khong-gian-nam-2025/","period":"2025"},"S03":{"name":"NSO KSMS 2024","url":"https://www.nso.gov.vn/tin-tuc-thong-ke/2025/05/thong-cao-bao-chi-ket-qua-khao-sat-muc-song-dan-cu-nam-2024/","period":"2024"},"S06":{"name":"CFPB Your Money, Your Goals","url":"https://www.consumerfinance.gov/consumer-tools/educator-tools/your-money-your-goals/toolkit/"},"S10":{"name":"SEC Savings Goal Calculator","url":"https://www.investor.gov/financial-tools-calculators/calculators/savings-goal-calculator"},"S24":{"name":"NIST AI RMF","url":"https://www.nist.gov/itl/ai-risk-management-framework"}},"cpi":{"observed_pct":4.57,"period":"Jan–Oct 2026 vs Jan–Oct 2025","source_id":"S01","note":"Historical comparison. NOT a forward inflation forecast."},"spatial":{"base":"Hà Nội = 100","year":2025,"values":{"hn":100,"hcm":97.96},"source_id":"S02","note":"Aggregate basket indices, not category-level prices or personal minimums."},"spending":{"year":2024,"urban_per_person_month":3800000,"rural_per_person_month":2500000,"source_id":"S03","note":"Approximate per-person monthly AVERAGES, not minimum living costs."},"rules":{"essential":["home","food","travel","bills","other"],"optional":["shopping","fun"],"cut_caps":[0.15,0.3,0.45],"floor_policy":"The user must explicitly allow discretionary reductions or set personal minimum spending. Default floors equal current spending; no automatic geographic adjustment.","inflation_scenarios":[{"id":"flat","pct":0,"kind":"illustrative"},{"id":"historic","pct":4.57,"kind":"historical_proxy_not_forecast"},{"id":"stress","pct":7,"kind":"illustrative"}],"eta_limit_months":120,"location_policy":"Use location only to display contextual benchmark; do not multiply observed expenses by SCOLI."}}</script>
 <script id="embeddedRates" type="application/json">{"as_of":"2026-11-25","snapshot_type":"MoMo public interest-rate comparison (not transactional quotes)","source_name":"MoMo – Gửi Tiết Kiệm Online","source_url":"https://www.momo.vn/tai-chinh/gui-tiet-kiem","legal_early_withdrawal_url":"https://baochinhphu.vn/quy-dinh-moi-ve-lai-suat-rut-truoc-han-tien-gui-10222062114522068.htm","tenors_months":[1,2,3,4,5,6,9,12,24],"min_deposit_note":"The page identifies a MoMo overall entry point at 100,000 VND; partner-specific minima here come from MoMo's stated retained-balance rules. Confirm opening minima and product conditions at transaction time.","banks":[{"id":"mbv","name":"MBV","partner":true,"minimum":100000,"min_verified":false,"min_remainder":100000,"partial":true,"channel":"MoMo · ngân hàng đối tác","rates":{"1":4.75,"2":4.75,"3":4.75,"4":4.75,"5":4.75,"6":8.2,"9":8.0,"12":8.0,"24":7.2}},{"id":"bvbank","name":"BVBank","partner":true,"minimum":500000,"min_verified":false,"min_remainder":500000,"partial":true,"channel":"MoMo · ngân hàng đối tác","rates":{"1":4.25,"2":4.25,"3":4.25,"4":4.25,"5":4.25,"6":6.5,"9":6.5,"12":6.3,"24":6.0}},{"id":"mbbank","name":"MBBank","partner":true,"minimum":100000,"min_verified":false,"min_remainder":100000,"partial":true,"channel":"MoMo · ngân hàng đối tác","rates":{"1":4.5,"2":4.6,"3":4.65,"4":4.65,"5":4.65,"6":5.7,"9":5.7,"12":6.3,"24":7.0}},{"id":"vietcombank","name":"Vietcombank","partner":false,"minimum":null,"min_verified":false,"min_remainder":null,"partial":false,"channel":"Ngân hàng khác · lãi tham khảo","rates":{"1":2.1,"2":2.1,"3":2.4,"4":2.4,"5":2.4,"6":3.5,"9":3.5,"12":5.9,"24":6.0}},{"id":"bidv","name":"BIDV","partner":false,"minimum":null,"min_verified":false,"min_remainder":null,"partial":false,"channel":"Ngân hàng khác · lãi tham khảo","rates":{"1":2.1,"2":2.1,"3":2.4,"4":2.4,"5":2.4,"6":3.5,"9":3.5,"12":5.9,"24":6.0}},{"id":"vietinbank","name":"VietinBank","partner":false,"minimum":null,"min_verified":false,"min_remainder":null,"partial":false,"channel":"Ngân hàng khác · lãi tham khảo","rates":{"1":2.1,"2":2.1,"3":2.4,"4":2.4,"5":2.4,"6":3.5,"9":3.5,"12":5.9,"24":6.0}},{"id":"techcombank","name":"Techcombank","partner":false,"minimum":null,"min_verified":false,"min_remainder":null,"partial":false,"channel":"Ngân hàng khác · lãi tham khảo","rates":{"1":4.4,"2":4.4,"3":4.7,"4":4.7,"5":4.7,"6":6.4,"9":6.4,"12":6.6,"24":5.7}},{"id":"agribank","name":"Agribank","partner":false,"minimum":null,"min_verified":false,"min_remainder":null,"partial":false,"channel":"Ngân hàng khác · lãi tham khảo","rates":{"1":2.6,"2":2.6,"3":2.9,"4":2.9,"5":2.9,"6":4.0,"9":4.0,"12":5.9,"24":6.0}}],"extra_bank_names":["ACB","VPBank","TPBank","KienlongBank","Sacombank","HDBank","VIB","OCB","SHB","LPBank","SeABank","Nam A Bank","Eximbank","MSB","NCB","ABBank","BAOVIET Bank","PVcomBank","Bac A Bank"]}</script>
 <script>(()=>{'use strict';
 const $=id=>document.getElementById(id),fmt=n=>new Intl.NumberFormat('vi-VN',{maximumFractionDigits:0}).format(Math.round(n||0))+'đ';
 const short=n=>Math.abs(n)>=1e6?new Intl.NumberFormat('vi-VN',{maximumFractionDigits:2}).format(n/1e6)+' triệu':fmt(n);
 const pct=n=>new Intl.NumberFormat('vi-VN',{maximumFractionDigits:2}).format(n)+'%';
+const evidence=JSON.parse($('embeddedEvidence').textContent);
 const cats=[{id:'home',name:'Nhà ở',default:1800000,max:[0,0,0]},{id:'food',name:'Ăn uống',default:1600000,max:[.03,.07,.10]},{id:'travel',name:'Đi lại',default:500000,max:[0,.03,.05]},{id:'bills',name:'Hóa đơn',default:300000,max:[0,.02,.04]},{id:'shopping',name:'Mua sắm',default:1200000,max:[.15,.30,.45]},{id:'fun',name:'Giải trí',default:900000,max:[.15,.30,.45]},{id:'other',name:'Khác',default:350000,max:[.05,.15,.25]}];
 const order=['shopping','fun','other','food','travel','bills','home'];
 let db=JSON.parse($('embeddedRates').textContent),state={},applied=true,aiReady=false,serverReady=false,depositManual=false,options=null,view=1,selectedBankId='',comparisonPayload=null;
 const n=id=>{let v=Number($(id).value);return Number.isFinite(v)&&v>=0?v:0};
 const sum=kind=>cats.reduce((total,c)=>total+state[c.id][kind],0);
 const surplus=kind=>n('income')-n('reserve')-sum(kind);
-const saving=()=>Math.max(0,surplus('proposed'));
+const inflationRate=()=>Math.max(0,n('inflationScenario'))/100;
+const futureExpense=month=>sum('proposed')*Math.pow(1+inflationRate(),month/12);
+const monthlyBalance=month=>n('income')-n('reserve')-futureExpense(month);
+const saving=()=>Math.max(0,monthlyBalance(0));
+const forecastSavings=months=>{let total=n('current');for(let m=1;m<=Math.max(0,Math.min(120,Math.floor(months)));m++)total+=Math.max(0,monthlyBalance(m));return total};
 const valid=()=>n('price')>0&&n('income')>=0&&n('targetMonths')>=1&&n('targetMonths')<=60;
-const eta=()=>{const gap=Math.max(0,n('price')-n('current'));const s=saving();return gap===0?0:s>0?Math.ceil(gap/s):Infinity};
+const eta=()=>{if(n('current')>=n('price'))return 0;let total=n('current');for(let m=1;m<=evidence.rules.eta_limit_months;m++){total+=Math.max(0,monthlyBalance(m));if(total>=n('price'))return m}return Infinity};
 const escapeHtml=v=>String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-function init(){state=Object.fromEntries(cats.map(c=>[c.id,{original:c.default,proposed:c.default,locked:c.id==='home'}]));applied=true;renderBudget();syncAll();populateBanks();updateOwnBank();}
-function renderBudget(){const host=$('budgetRows');host.replaceChildren();cats.forEach(c=>{const s=state[c.id],row=document.createElement('div');row.className='budgetrow';row.innerHTML=`<div class="catname">${c.name}</div><span class="budgetlabel cur">Hiện tại</span><span class="budgetlabel propo">Đề xuất</span><input type="number" min="0" step="10000" data-id="${c.id}" data-kind="original" aria-label="Hiện tại ${c.name}"><input class="draft" type="number" min="0" step="10000" data-id="${c.id}" data-kind="proposed" aria-label="Đề xuất ${c.name}"><button type="button" class="lock ${s.locked?'on':''}" data-lock="${c.id}" title="Khóa / mở khóa ${c.name}" aria-label="Khóa ${c.name}">${s.locked?'🔒':'🔓'}</button>`;
-row.querySelector('[data-kind="original"]').value=s.original;row.querySelector('[data-kind="proposed"]').value=s.proposed;row.querySelector('[data-kind="proposed"]').disabled=s.locked;
-row.querySelectorAll('input').forEach(input=>input.addEventListener('input',()=>{const val=Number(input.value);if(!Number.isFinite(val)||val<0)return;const kind=input.dataset.kind;state[c.id][kind]=val;if(kind==='original'){if(s.locked||s.proposed>s.original){s.proposed=val;row.querySelector('[data-kind="proposed"]').value=val}}applied=false;$('apply').disabled=false;$('budgetMode').textContent='Đang chỉnh';syncAll()}));
-row.querySelector('button').addEventListener('click',()=>{s.locked=!s.locked;if(s.locked)s.proposed=s.original;applied=false;$('apply').disabled=false;renderBudget();syncAll()});host.append(row)})}
-function localSuggestion(){const month=Math.max(1,n('targetMonths'));let gap=Math.max(0,(n('price')-n('current'))/month-surplus('original'));const level=Math.max(0,Math.min(2,n('strength')-1));for(const c of cats)state[c.id].proposed=state[c.id].original;const lines=[];for(const id of order){const c=cats.find(x=>x.id===id),s=state[id];if(s.locked)continue;const possible=Math.floor(s.original*c.max[level]/10000)*10000;const reduce=Math.min(possible,Math.ceil(gap/10000)*10000);if(reduce>0){s.proposed=Math.max(0,s.original-reduce);lines.push(c.name+' −'+short(reduce));gap=Math.max(0,gap-reduce)}}return lines}
-function applyAICuts(cuts){let lines=[];const level=Math.max(0,Math.min(2,n('strength')-1));for(const c of cats){const s=state[c.id],limit=c.max[level];const fraction=typeof cuts[c.id]==='number'?Math.min(limit,Math.max(0,cuts[c.id]/100)):0;const cut=s.locked?0:Math.round(s.original*fraction/10000)*10000;s.proposed=Math.max(0,s.original-cut);if(cut)lines.push(c.name+' −'+short(cut))}return lines}
+function init(){
+ state=Object.fromEntries(cats.map(c=>[c.id,{original:c.default,proposed:c.default,floor:c.default,locked:evidence.rules.essential.includes(c.id)}]));
+ applied=true;renderBudget();syncAll();populateBanks();updateOwnBank();
+}
+function renderBudget(){
+ const host=$('budgetRows');host.replaceChildren();
+ cats.forEach(c=>{
+  const st=state[c.id],row=document.createElement('div');
+  row.className='budgetrow';
+  row.innerHTML=`<div class="catname">${c.name}</div><span class="budgetlabel cur">Hiện tại</span><span class="budgetlabel propo">Đề xuất</span><input type="number" min="0" step="10000" data-kind="original" aria-label="Hiện tại ${c.name}"><input class="draft" type="number" min="0" step="10000" data-kind="proposed" aria-label="Đề xuất ${c.name}"><button type="button" class="lock ${st.locked?'on':''}" aria-label="Khóa hoặc mở khoản ${c.name}">${st.locked?'🔒':'🔓'}</button><label class="floorrow"><span>Giữ tối thiểu mỗi tháng</span><input type="number" min="0" step="10000" data-kind="floor" aria-label="Mức tối thiểu ${c.name}"><small>${st.locked?'Khoản đã khóa; mở khóa nếu muốn thay đổi':'AI không được đề xuất thấp hơn mức này'}</small></label>`;
+  const orig=row.querySelector('[data-kind=original]'),prop=row.querySelector('[data-kind=proposed]'),floor=row.querySelector('[data-kind=floor]'),lock=row.querySelector('.lock');
+  orig.value=st.original;prop.value=st.proposed;floor.value=st.floor;
+  prop.disabled=st.locked;floor.disabled=st.locked;
+  orig.addEventListener('input',()=>{
+   const value=Number(orig.value);if(!Number.isFinite(value)||value<0)return;
+   const old=st.original;st.original=value;
+   if(st.floor===old)st.floor=value;else st.floor=Math.min(st.floor,value);
+   if(st.locked||st.proposed===old||st.proposed>value)st.proposed=value;
+   applied=false;$('apply').disabled=false;renderBudget();syncAll();
+  });
+  prop.addEventListener('input',()=>{
+   const value=Number(prop.value);if(!Number.isFinite(value)||value<0)return;
+   st.proposed=value;
+   if(value<st.floor){st.proposed=st.floor;prop.value=st.floor}
+   applied=false;$('apply').disabled=false;syncAll();
+  });
+  floor.addEventListener('input',()=>{
+   const value=Number(floor.value);if(!Number.isFinite(value)||value<0)return;
+   st.floor=Math.min(st.original,value);
+   if(st.proposed<st.floor){st.proposed=st.floor;prop.value=st.floor}
+   applied=false;$('apply').disabled=false;syncAll();
+  });
+  lock.addEventListener('click',()=>{
+   st.locked=!st.locked;
+   if(st.locked){st.proposed=st.original;st.floor=st.original}
+   applied=false;$('apply').disabled=false;renderBudget();syncAll();
+  });
+  host.append(row);
+ });
+}
+
+function localSuggestion(){
+ const month=Math.max(1,n('targetMonths'));let gap=Math.max(0,(n('price')-n('current'))/month-surplus('original'));
+ const level=Math.max(0,Math.min(2,n('strength')-1)),cutCap=evidence.rules.cut_caps[level];
+ for(const c of cats)state[c.id].proposed=state[c.id].original;
+ const lines=[];
+ for(const id of order){
+  const c=cats.find(x=>x.id===id),st=state[id];
+  if(st.locked)continue;
+  const allowed=Math.max(0,Math.min(st.original-st.floor,st.original*cutCap));
+  const possible=Math.floor(allowed/10000)*10000;
+  const cut=Math.min(possible,Math.ceil(gap/10000)*10000);
+  if(cut>0){st.proposed=Math.max(st.floor,st.original-cut);lines.push(c.name+' −'+short(cut));gap=Math.max(0,gap-cut)}
+ }
+ return lines;
+}
+function applyAICuts(cuts){
+ const lines=[],level=Math.max(0,Math.min(2,n('strength')-1)),cap=evidence.rules.cut_caps[level];
+ for(const c of cats){
+  const st=state[c.id],allowance=Math.max(0,Math.min(st.original-st.floor,st.original*cap));
+  const asked=typeof cuts[c.id]==='number'?Math.max(0,cuts[c.id]):0;
+  const cut=st.locked?0:Math.floor(Math.min(allowance,st.original*asked/100)/10000)*10000;
+  st.proposed=Math.max(st.floor,st.original-cut);
+  if(cut>0)lines.push(c.name+' −'+short(cut));
+ }
+ return lines;
+}
+
 async function suggest(){
  const btn=$('suggest');btn.disabled=true;btn.textContent='Đang phân tích…';
  let lines=[],fromAI=false,aiError='';
  try{
   if(aiReady){
-   const payload={income:n('income'),reserve:n('reserve'),goal_price:n('price'),current_savings:n('current'),target_months:n('targetMonths'),intensity:n('strength'),categories:cats.map(c=>({id:c.id,spend:state[c.id].original,locked:state[c.id].locked,max_cut_pct:Math.round(c.max[n('strength')-1]*100)}))};
+   const payload={income:n('income'),reserve:n('reserve'),goal_price:n('price'),current_savings:n('current'),target_months:n('targetMonths'),intensity:n('strength'),categories:cats.map(c=>({id:c.id,spend:state[c.id].original,locked:state[c.id].locked,max_cut_pct:state[c.id].locked?0:Math.max(0,Math.min(evidence.rules.cut_caps[n('strength')-1]*100,(state[c.id].original-state[c.id].floor)/Math.max(1,state[c.id].original)*100))}))};
    const r=await fetch('/api/budget',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
    const data=await r.json();if(!r.ok||!data.cuts)throw Error(data.error||'AI chưa có kết quả');
    lines=applyAICuts(data.cuts);fromAI=true;$('status').textContent='● Gemini đã phản hồi thành công';
@@ -102,7 +174,37 @@ async function suggest(){
  $('budgetExplanation').textContent=(aiError?'Gemini chưa trả lời: '+aiError+'. App dùng gợi ý dự phòng.\n\n':'')+detail;
  renderBudget();syncAll();
 }
-function renderTimeline(){const host=$('timeline');host.replaceChildren();const s=saving(),goal=n('price'),current=n('current'),months=eta();const milestones=months===Infinity?[0,3,6,9]:[0,Math.min(3,months),Math.min(6,months),Math.min(9,months),months];[...new Set(milestones)].forEach(m=>{const reached=current+s*m;const row=document.createElement('div');row.className='trow';const progress=goal>0?Math.min(100,Math.round(reached/goal*100)):0;row.innerHTML=`<span>Tháng ${m}</span><div class="meter"><i style="width:${progress}%"></i></div><b>${escapeHtml(short(reached))}</b>`;host.append(row)})}
+function renderTimeline(){
+ const host=$('timeline'),goal=n('price'),months=eta();host.replaceChildren();
+ const milestones=months===Infinity?[0,3,6,9,12]:[0,3,6,9,12,months].filter(m=>m<=120);
+ [...new Set(milestones)].sort((a,b)=>a-b).forEach(m=>{
+  const reached=forecastSavings(m);
+  const row=document.createElement('div');row.className='trow';
+  const progress=goal>0?Math.min(100,Math.round(reached/goal*100)):0;
+  row.innerHTML=`<span>Tháng ${m}</span><div class="meter"><i style="width:${progress}%"></i></div><b>${escapeHtml(short(reached))}</b>`;
+  host.append(row);
+ });
+ const tbody=$('monthlyRows');tbody.replaceChildren();
+ for(let m=1;m<=12;m++){
+  const balance=monthlyBalance(m),tr=document.createElement('tr');
+  for(const v of ['Tháng '+m,fmt(futureExpense(m)),balance<0?'Thiếu '+fmt(-balance):fmt(balance),fmt(forecastSavings(m))]){
+   const td=document.createElement('td');td.textContent=v;tr.appendChild(td);
+  }
+  if(balance<0)tr.className='negative-month';
+  tbody.appendChild(tr);
+ }
+}
+function updateMarketContext(){
+ const key=$('livingArea').value,sp=evidence.spatial,avg=evidence.spending,sc=evidence.cpi;
+ let context='';
+ if(key==='hn')context='Hà Nội: SCOLI '+sp.values.hn+' (mốc so sánh năm '+sp.year+').';
+ else if(key==='hcm')context='TP.HCM: SCOLI '+sp.values.hcm+' so với Hà Nội 100 (năm '+sp.year+').';
+ else if(key==='urban')context='Mức chi tiêu bình quân thành thị '+fmt(avg.urban_per_person_month)+'/người/tháng (năm '+avg.year+').';
+ else if(key==='rural')context='Mức chi tiêu bình quân nông thôn '+fmt(avg.rural_per_person_month)+'/người/tháng (năm '+avg.year+').';
+ else context='Không có mức giá địa phương đã xác minh trong database.';
+ $('marketContext').textContent=context+' CPI '+sc.observed_pct+'% là số quan sát lịch sử, không phải dự báo. App không tự nhân chi phí cá nhân với chỉ số vùng.';
+}
+
 function syncPlanner(){
  const income=n('income'),reserve=n('reserve'),expense=sum('proposed');
  const prev=surplus('original'),curr=income-expense-reserve,months=eta();
@@ -120,7 +222,7 @@ function syncPlanner(){
  const possible=curr<0&&unreserved>0&&reserve>proposal;
  helper.hidden=!possible;helper.dataset.proposed=String(proposal);
  if(possible)helper.textContent='Thử quỹ dự phòng '+fmt(proposal)+'/tháng';
- renderTimeline();$('next').disabled=!valid();
+ renderTimeline();updateMarketContext();$('next').disabled=!valid();
  const w=$('plannerWarning');
  if(curr<0){w.textContent='Ngân sách tháng thiếu '+fmt(-curr)+'. Kiểm tra quỹ dự phòng có bị tính trùng không, hoặc điều chỉnh khoản chi có thể giảm. App không tự cắt chi phí thiết yếu.';w.className='alert'}
  else if(months===0){w.textContent='Bạn đã có đủ tiền cho mục tiêu. Nếu cần mua sớm, hãy cân nhắc giữ tiền ở nơi dễ rút.';w.className='alert success'}
@@ -128,7 +230,7 @@ function syncPlanner(){
  else{w.textContent='Dự kiến đạt mục tiêu sau '+months+' tháng, chưa tính lãi tiền gửi.';w.className='alert success'}
  if(gap===0&&curr<0)w.textContent+=' Bạn có thể đủ tiền mua mục tiêu nhưng thu chi hằng tháng vẫn đang âm.';
 }
-function bankContext(){const months=eta(),month=n('depositMonth');const available=Math.max(0,n('current')+saving()*month);const until=Number.isFinite(months)?Math.max(0,months-month):0;return {available,until,month,principal:n('principal'),monthly:saving()}}
+function bankContext(){const months=eta(),month=n('depositMonth');const available=forecastSavings(month);const until=Number.isFinite(months)?Math.max(0,months-month):0;return {available,until,month,principal:n('principal'),monthly:saving()}}
 function syncDeposit(auto){const c=bankContext();$('bankMonthly').textContent=fmt(c.monthly);$('bankSaved').textContent=fmt(n('current'));if(auto){depositManual=false;$('principal').value=Math.floor(c.available/10000)*10000}renderCompare()}
 function syncAll(){syncPlanner();syncDeposit(!depositManual)}
 function switchView(v){view=v;$('screen1').classList.toggle('on',v===1);$('screen2').classList.toggle('on',v===2);$('tab1').classList.toggle('on',v===1);$('tab2').classList.toggle('on',v===2);if(v===2)renderCompare();window.scrollTo({top:0,behavior:'smooth'})}
@@ -271,8 +373,8 @@ async function connect(){
 }
 // Events
 $('tab1').onclick=()=>switchView(1);$('tab2').onclick=()=>switchView(2);$('next').onclick=()=>{if(!applied){$('budgetExplanation').textContent='Nhấn Áp dụng để xác nhận ngân sách mới trước khi chuyển bước.';return}switchView(2)};$('back').onclick=()=>switchView(1);
-$('suggest').onclick=suggest;$('reserveHelper').onclick=()=>{const amount=Number($('reserveHelper').dataset.proposed);if(Number.isFinite(amount)&&amount>=0){$('reserve').value=amount;syncAll()}};$('apply').onclick=()=>{applied=true;$('apply').disabled=true;$('budgetMode').textContent='✓ Đã áp dụng';$('budgetExplanation').textContent='Đã dùng ngân sách này cho tính toán và so sánh ngân hàng.';syncAll()};$('reset').onclick=init;
-['goal','price','current','income','targetMonths','reserve'].forEach(id=>$(id).addEventListener('input',()=>{syncAll()}));$('strength').oninput=()=>{$('strengthName').textContent=['Nhẹ nhàng','Cân bằng','Quyết tâm'][n('strength')-1]};
+$('suggest').onclick=suggest;$('tryFlexible').onclick=()=>{for(const id of evidence.rules.optional){const st=state[id];st.locked=false;st.floor=Math.round(st.original*.85/10000)*10000;}applied=false;$('apply').disabled=false;renderBudget();syncAll();$('budgetExplanation').textContent='Đã mở giới hạn thử giảm tối đa 15% cho mua sắm và giải trí. Bấm Gợi ý để tính; bạn có thể sửa mức tối thiểu trước khi áp dụng.'};$('reserveHelper').onclick=()=>{const amount=Number($('reserveHelper').dataset.proposed);if(Number.isFinite(amount)&&amount>=0){$('reserve').value=amount;syncAll()}};$('apply').onclick=()=>{applied=true;$('apply').disabled=true;$('budgetMode').textContent='✓ Đã áp dụng';$('budgetExplanation').textContent='Đã dùng ngân sách này cho tính toán và so sánh ngân hàng.';syncAll()};$('reset').onclick=init;
+['goal','price','current','income','targetMonths','reserve','livingArea','inflationScenario'].forEach(id=>$(id).addEventListener('input',()=>{syncAll()}));$('strength').oninput=()=>{$('strengthName').textContent=['Nhẹ nhàng','Cân bằng','Quyết tâm'][n('strength')-1]};
 $('depositMonth').onchange=()=>syncDeposit(true);$('principal').oninput=()=>{depositManual=true;renderCompare()};$('priority').onchange=renderCompare;$('ownBank').onchange=updateOwnBank;$('ownBankOther').oninput=()=>{selectedBankId='';renderCompare()};$('compare').onclick=renderCompare;$('refresh').onclick=refreshRates;
 ['allTerm','sortRates'].forEach(id=>$(id).addEventListener('change',()=>renderBankList()));['withdrawMonth','withdrawAmount'].forEach(id=>$(id).addEventListener('input',renderWithdrawal));$('aiCompare').onclick=fetchAI;$('download').onclick=exportPlan;
 if(!aiReady)$('suggest').textContent='Gợi ý ngân sách';$('rateSource').href=db.source_url;$('dataDate').textContent='Cập nhật trên nguồn: '+db.as_of.split('-').reverse().join('/')+' · '+db.banks.length+' ngân hàng';init();connect();
