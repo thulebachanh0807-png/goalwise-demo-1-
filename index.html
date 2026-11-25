@@ -41,6 +41,8 @@
  #budgetPrint .printnote,#budgetPrint .printsources{font-size:8pt;color:#555;line-height:1.45;margin-top:8pt}
  #budgetPrint h2{break-after:avoid}
 }
+.goaladvice{background:#fff7ed;border:1px solid #efdec5;border-radius:14px;padding:12px 13px;color:#84562b;font-size:12px;line-height:1.55;margin-top:10px}.goaladvice.good{background:#effaf5;border-color:#cde9d9;color:#176b4c}
+@media(max-width:650px){.goaladvice{font-size:12px}}
 </style></head>
 <body>
 <header class="nav"><div class="navin"><div class="brand"><div class="mark" aria-hidden="true">G</div><div><div class="brandname">Goal<span>Wise</span> <span style="font-size:12px;color:#887381">AI</span></div><div class="subbrand">YOUR SAVING COMPANION</div></div></div><div class="navright"><span class="livebadge" id="status">● Bản demo offline</span></div></div></header>
@@ -65,7 +67,7 @@
 <p class="hint" style="margin:10px 0 0">AI ưu tiên mua sắm, giải trí; chỉ gợi ý giảm nhẹ tiền ăn, đi lại, hóa đơn. Nhà ở và mục “Khác” được khóa mặc định. Bạn có thể khóa mọi khoản không muốn thay đổi.</p>
 <div class="separator"></div><div class="flex between"><label for="strength" style="font-size:12px;font-weight:750">Mức điều chỉnh</label><b style="color:#b31570" id="strengthName">Cân bằng</b></div><input class="range" type="range" id="strength" min="1" max="3" step="1" value="2">
 <div class="actions"><button type="button" id="suggest" class="button primary">✦ AI đề xuất ngân sách</button><button type="button" id="apply" class="button outline" disabled>Áp dụng</button><button type="button" id="reset" class="button secondary">Đặt lại</button></div><div id="budgetExplanation" class="alert neutral" aria-live="polite">Nhấn Gợi ý để thử ngân sách linh hoạt. Tất cả mức giảm đều cần bạn kiểm tra, chỉnh sửa và xác nhận.</div></section>
-</div><aside class="stack sticky"><section class="card"><span class="sectiontag">KẾT QUẢ</span><div class="fine">Có thể dành ra mỗi tháng</div><div class="resultvalue" id="monthly">—</div><div class="budgetmath" id="budgetMath" aria-live="polite"></div><button type="button" class="button outline sm" id="reserveHelper" hidden>Thử thay đổi quỹ dự phòng</button><div class="metricgrid"><div class="metric"><small>Trước điều chỉnh</small><strong id="before">—</strong></div><div class="metric"><small>Tăng tiết kiệm</small><strong id="gain">—</strong></div><div class="metric"><small>Đạt mục tiêu sau</small><strong id="eta">—</strong></div><div class="metric"><small>So với kế hoạch</small><strong id="feasible">—</strong></div></div><h3>Tiến độ tích lũy</h3><div class="timeline" id="timeline"></div><h3 style="margin-top:15px">Dự toán từng tháng</h3><div class="monthscroll"><table class="monthtable"><thead><tr><th>Tháng</th><th>Chi phí ước tính</th><th>Dư để dành</th><th>Tích lũy</th></tr></thead><tbody id="monthlyRows"></tbody></table></div><div class="alert" id="plannerWarning" aria-live="polite"></div><button type="button" class="button primary wide" id="next" style="margin-top:14px">Tiếp tục chọn ngân hàng →</button><button type="button" class="button outline wide" id="exportBudget" style="margin-top:8px">↓ Xuất thu–chi (PDF)</button></section>
+</div><aside class="stack sticky"><section class="card"><span class="sectiontag">KẾT QUẢ</span><div class="fine">Có thể dành ra mỗi tháng</div><div class="resultvalue" id="monthly">—</div><div class="budgetmath" id="budgetMath" aria-live="polite"></div><button type="button" class="button outline sm" id="reserveHelper" hidden>Thử thay đổi quỹ dự phòng</button><div id="goalAdvice" class="goaladvice" aria-live="polite"></div><div class="metricgrid"><div class="metric"><small>Trước điều chỉnh</small><strong id="before">—</strong></div><div class="metric"><small>Tăng tiết kiệm</small><strong id="gain">—</strong></div><div class="metric"><small>Đạt mục tiêu sau</small><strong id="eta">—</strong></div><div class="metric"><small>So với kế hoạch</small><strong id="feasible">—</strong></div></div><h3>Tiến độ tích lũy</h3><div class="timeline" id="timeline"></div><h3 style="margin-top:15px">Dự toán từng tháng</h3><div class="monthscroll"><table class="monthtable"><thead><tr><th>Tháng</th><th>Chi phí ước tính</th><th>Dư để dành</th><th>Tích lũy</th></tr></thead><tbody id="monthlyRows"></tbody></table></div><div class="alert" id="plannerWarning" aria-live="polite"></div><button type="button" class="button primary wide" id="next" style="margin-top:14px">Tiếp tục chọn ngân hàng →</button><button type="button" class="button outline wide" id="exportBudget" style="margin-top:8px">↓ Xuất thu–chi (PDF)</button></section>
 <section class="card"><h3>GoalWise tính như thế nào?</h3><p class="fine" style="margin:0">Ngân sách mới do bạn phê duyệt. Công thức tính tiền và thời gian đạt mục tiêu chạy riêng, không để AI tự đoán.</p></section></aside></div></section>
 <section class="screen" id="screen2"><div class="layout"><div class="stack">
 <section class="card"><span class="sectiontag">AI BANK MATCHER</span><h2>Số tiền này nên gửi ở đâu?</h2><div class="metricgrid"><div class="metric"><small>Tiết kiệm mỗi tháng</small><strong id="bankMonthly">—</strong></div><div class="metric"><small>Đã tích lũy</small><strong id="bankSaved">—</strong></div></div>
@@ -190,13 +192,15 @@ async function suggest(){
  }catch(e){lines=localSuggestion();aiError=String(e.message||'không rõ nguyên nhân');$('status').textContent='● Gemini lỗi · Xem thông báo'}
  finally{btn.disabled=false;btn.textContent=aiReady?'✦ AI đề xuất ngân sách':'Gợi ý ngân sách'}
  applied=false;$('apply').disabled=false;$('budgetMode').textContent=fromAI?'Gợi ý Gemini':'Gợi ý quy tắc';
- const detail=lines.length?'Có thể cân nhắc: '+lines.join(' · ')+'. Bạn tự quyết định mức cuối cùng.':'Chưa tìm thấy khoản có thể giảm trong giới hạn đã chọn.';
- $('budgetExplanation').textContent=(aiError?'Gemini chưa trả lời: '+aiError+'. App dùng gợi ý dự phòng.\n\n':'')+detail;
+ const detail=lines.length?'Có thể cân nhắc: '+lines.join(' · ')+'. ':'Hiện chưa có khoản phù hợp để tự động giảm. ';
+ const extra=neededPerMonth();
+ const advice=extra>0?'Với kế hoạch này, để đạt mục tiêu đúng '+n('targetMonths')+' tháng vẫn cần tăng khả năng tiết kiệm khoảng '+fmt(extra)+'/tháng. Có thể lùi hạn, giảm giá mục tiêu hoặc bổ sung thu nhập.':'Mục tiêu đạt được theo giả định đã chọn.';
+ $('budgetExplanation').textContent=(aiError?'Gemini chưa trả lời: '+aiError+'. App dùng gợi ý dự phòng.\n\n':'')+detail+advice;
  renderBudget();syncAll();
 }
 function renderTimeline(){
  const host=$('timeline'),goal=n('price'),months=eta();host.replaceChildren();
- const milestones=months===Infinity?[0,3,6,9,12]:[0,3,6,9,12,months].filter(m=>m<=120);
+ const milestones=[0,3,6,9,12,n('targetMonths'),...(Number.isFinite(months)?[months]:[])].filter(m=>Number.isFinite(m)&&m>=0&&m<=120);
  [...new Set(milestones)].sort((a,b)=>a-b).forEach(m=>{
   const reached=forecastSavings(m);
   const row=document.createElement('div');row.className='trow';
@@ -226,31 +230,37 @@ function updateMarketContext(){
 }
 
 function syncPlanner(){
- const income=n('income'),reserve=n('reserve'),expense=sum('proposed');
- const prev=surplus('original'),curr=income-expense-reserve,months=eta();
- const gap=Math.max(0,n('price')-n('current'));
+ const income=n('income'),reserve=n('reserve'),expense=sum('proposed'),targetMonths=Math.max(1,n('targetMonths'));
+ const prev=surplus('original'),curr=income-expense-reserve,months=eta(),goal=n('price'),already=n('current');
+ const atTarget=forecastSavings(targetMonths),shortfall=Math.max(0,goal-atTarget),extra=neededPerMonth();
  $('monthly').textContent=fmt(Math.max(0,curr));
  $('before').textContent=short(Math.max(0,prev));
  $('gain').textContent=(curr-prev>=0?'+':'')+short(curr-prev);
- $('eta').textContent=months===0?'Đã đạt mục tiêu':Number.isFinite(months)?months+' tháng':'Chưa xác định';
- $('feasible').textContent=months===0?'Đã đủ tiền':months===Infinity?'Chưa đủ ngân sách':months<=n('targetMonths')?'Đúng kế hoạch':'Chậm '+(months-n('targetMonths'))+' tháng';
+ $('eta').textContent=months===0?'Đã đạt mục tiêu':Number.isFinite(months)?months+' tháng':'Chưa đạt theo giả định';
+ $('feasible').textContent=months===0?'Đã đủ tiền':shortfall<=0?'Đúng kế hoạch':'Cần điều chỉnh kế hoạch';
  const math=$('budgetMath');
  math.textContent='Thu nhập '+fmt(income)+' − Chi tiêu '+fmt(expense)+' − Quỹ dự phòng '+fmt(reserve)+' = '+(curr<0?'Thiếu '+fmt(-curr):'Dư '+fmt(curr))+'/tháng.';
  math.classList.toggle('negative',curr<0);
+ const advice=$('goalAdvice');
+ if(already>=goal){advice.textContent='Bạn đã có đủ tiền cho mục tiêu. Hãy cân nhắc giữ khoản cần dùng sớm ở nơi dễ rút.';advice.className='goaladvice good'}
+ else if(shortfall>0){
+  advice.textContent='Sau '+targetMonths+' tháng, kịch bản hiện tại dự tính còn khoảng '+fmt(Math.max(0,atTarget))+' / '+fmt(goal)+'. Cần cải thiện thêm khoảng '+fmt(extra)+'/tháng để đạt đúng hạn. Có thể giảm khoản linh hoạt, bổ sung thu nhập hoặc lùi mục tiêu.';
+  advice.className='goaladvice';
+ }else{advice.textContent='Dòng tiền dự kiến đủ để đạt mục tiêu trong '+targetMonths+' tháng theo kịch bản đã chọn.';advice.className='goaladvice good'}
  const helper=$('reserveHelper'),unreserved=income-expense;
  const proposal=Math.max(0,Math.min(Math.round(income*.1/50000)*50000,Math.floor(Math.max(0,unreserved)/50000)*50000));
- const possible=curr<0&&unreserved>0&&reserve>proposal;
- helper.hidden=!possible;helper.dataset.proposed=String(proposal);
- if(possible)helper.textContent='Thử quỹ dự phòng '+fmt(proposal)+'/tháng';
+ const canSuggest=curr<0&&unreserved>0&&reserve>proposal;
+ helper.hidden=!canSuggest;helper.dataset.proposed=String(proposal);
+ if(canSuggest)helper.textContent='Thử quỹ dự phòng '+fmt(proposal)+'/tháng';
  renderTimeline();updateMarketContext();$('next').disabled=!valid();
  const w=$('plannerWarning');
- if(curr<0){w.textContent='Ngân sách tháng thiếu '+fmt(-curr)+'. Kiểm tra quỹ dự phòng có bị tính trùng không, hoặc điều chỉnh khoản chi có thể giảm. App không tự cắt chi phí thiết yếu.';w.className='alert'}
- else if(months===0){w.textContent='Bạn đã có đủ tiền cho mục tiêu. Nếu cần mua sớm, hãy cân nhắc giữ tiền ở nơi dễ rút.';w.className='alert success'}
- else if(months===Infinity){w.textContent='Chưa có tiền dư mỗi tháng. Hãy điều chỉnh khoản chi hoặc quỹ dự phòng rồi tính lại.';w.className='alert'}
- else{w.textContent='Dự kiến đạt mục tiêu sau '+months+' tháng, chưa tính lãi tiền gửi.';w.className='alert success'}
- if(gap===0&&curr<0)w.textContent+=' Bạn có thể đủ tiền mua mục tiêu nhưng thu chi hằng tháng vẫn đang âm.';
+ if(curr<0){w.textContent='Ngân sách tháng đang thiếu '+fmt(-curr)+'. Kiểm tra quỹ dự phòng có bị tính trùng không hoặc khoản nào thực sự có thể giảm.';w.className='alert'}
+ else if(months===0){w.textContent='Mục tiêu đã đủ vốn; không cần tiết kiệm thêm cho mục tiêu này.';w.className='alert success'}
+ else if(shortfall>0){w.textContent='Chưa đạt trong '+targetMonths+' tháng theo kịch bản đã chọn. Tham khảo con số cần cải thiện ở trên, không bắt buộc cắt khoản thiết yếu.';w.className='alert neutral'}
+ else{w.textContent='Kế hoạch đáp ứng mục tiêu theo giả định, chưa tính lãi ngân hàng hoặc thu nhập phát sinh.';w.className='alert success'}
 }
-function bankContext(){const months=eta(),month=n('depositMonth');const available=Math.max(0,forecastSavings(month));const until=Number.isFinite(months)?Math.max(0,months-month):0;return {available,until,month,principal:n('principal'),monthly:saving()}}
+
+function bankContext(){const months=eta(),month=n('depositMonth');const available=Math.max(0,forecastSavings(month));const until=Math.max(0,(Number.isFinite(months)?months:n('targetMonths'))-month);return {available,until,month,principal:n('principal'),monthly:saving()}}
 function syncDeposit(auto){const c=bankContext();$('bankMonthly').textContent=fmt(c.monthly);$('bankSaved').textContent=fmt(n('current'));if(auto){depositManual=false;$('principal').value=Math.floor(c.available/10000)*10000}renderCompare()}
 function syncAll(){syncPlanner();syncDeposit(!depositManual)}
 function switchView(v){view=v;$('screen1').classList.toggle('on',v===1);$('screen2').classList.toggle('on',v===2);$('tab1').classList.toggle('on',v===1);$('tab2').classList.toggle('on',v===2);if(v===2)renderCompare();window.scrollTo({top:0,behavior:'smooth'})}
@@ -400,7 +410,7 @@ function exportBudgetPDF(){
   ['Mục tiêu tiết kiệm', $('goal').value.trim()||'Chưa ghi'],
   ['Giá mục tiêu',fmt(n('price'))],
   ['Tiền đang có',fmt(n('current'))],
-  ['Dự kiến đạt mục tiêu',eta()===0?'Đã đủ tiền':Number.isFinite(eta())?eta()+' tháng':'Chưa xác định']
+  ['Dự kiến đạt mục tiêu',eta()===0?'Đã đủ tiền':Number.isFinite(eta())?eta()+' tháng':'Chưa đạt theo kịch bản']
  ];
  for(const [k,v] of summary){const row=overview.insertRow();const a=row.insertCell(),b=row.insertCell();a.textContent=k;b.textContent=v}
  report.append(overview);
