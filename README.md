@@ -18,7 +18,7 @@ GoalWise is an independent, student-built fintech concept using the magenta colo
 - Save/rebuild/redeploy, then open `/api/health`; expected `provider=OpenAI`, `model=gpt-5-mini`, `ai_ready=true` if a key has been provided.
 - Open `/api/ai-check` to verify that the API key can access the configured model. This does *not* guarantee text generation. Test the Budget Planner's **AI đề xuất ngân sách** button to confirm GPT actually responds.
 - Never upload keys to GitHub, HTML, screenshots or shared documents. Revoke any previously exposed key.
-- OpenAI Platform may require billing/credits before requests work. Monitor Usage, API rate limits and billing. The current public demo needs authentication, server-side rate limiting and abuse/cost protections before sharing widely.
+- OpenAI Platform may require billing/credits before requests work. Monitor Usage, API rate limits and billing. GoalWise includes a **basic global 40-requests/hour in-memory limiter** (configurable with `GOALWISE_AI_MAX_CALLS_PER_HOUR`), but this does not replace authentication, a platform spend limit or production-grade abuse protection before broad public sharing.
 
 ## Local development
 
