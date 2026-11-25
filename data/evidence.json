@@ -67,11 +67,11 @@
       "fun"
     ],
     "cut_caps": [
-      0.15,
-      0.3,
-      0.45
+      0.1,
+      0.2,
+      0.3
     ],
-    "floor_policy": "The user must explicitly allow discretionary reductions or set personal minimum spending. Default floors equal current spending; no automatic geographic adjustment.",
+    "floor_policy": "No minimum-spend fields. Essentials are protected from automatic cuts; only shopping and leisure are eligible for AI/rule-based reductions with 10%, 20%, 30% caps by intensity. Users can unlock essential categories to manually edit their planned amounts. Regional CPI and SCOLI are contextual, never used to invent individual prices or floors.",
     "inflation_scenarios": [
       {
         "id": "flat",
