@@ -1,10 +1,18 @@
+"""Verify the prebuilt GoalWise V13 bundle without overwriting it.
+
+V13 is maintained directly in index.html; the pre-V13 template in src/
+must never be used to rebuild it on Render.
+"""
 from pathlib import Path
 import json
-root=Path(__file__).resolve().parent
-html=(root/'src/index.template.html').read_text(encoding='utf-8')
-css=(root/'src/styles.css').read_text(encoding='utf-8')
-js=(root/'src/app.js').read_text(encoding='utf-8')
-data=json.loads((root/'data/rates.json').read_text(encoding='utf-8'))
-html=html.replace('/*CSS*/',css).replace('/*JSON*/',json.dumps(data,ensure_ascii=False,separators=(',',':'))).replace('/*JS*/',js)
-(root/'index.html').write_text(html,encoding='utf-8')
-print(f'Built {root/"index.html"}: {len(html):,} chars')
+
+ROOT = Path(__file__).resolve().parent
+HTML = ROOT / "index.html"
+EVIDENCE = ROOT / "evidence.json"
+if not HTML.exists() or not EVIDENCE.exists():
+    raise SystemExit("Missing GoalWise V13 index.html or evidence.json")
+html = HTML.read_text(encoding="utf-8")
+if "yofi · V13" not in html or "function aiOptimize()" not in html:
+    raise SystemExit("Expected prebuilt GoalWise V13 interface; build stopped to avoid serving the legacy version")
+json.loads(EVIDENCE.read_text(encoding="utf-8"))
+print("GoalWise V13 verified. Existing index.html preserved (no legacy rebuild).")
