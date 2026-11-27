@@ -1,0 +1,81 @@
+{
+  "version": "2026-11-25",
+  "sources": [
+    {
+      "id": "S01",
+      "title": "NSO CPI 10 tháng 2026",
+      "url": "https://www.nso.gov.vn/du-lieu-va-so-lieu-thong-ke/2026/11/chi-so-gia-tieu-dung-chi-so-gia-vang-va-chi-so-gia-do-la-my-thang-muoi-va-muoi-thang-nam-2026/",
+      "value": 4.57,
+      "unit": "%",
+      "period": "Jan–Oct 2026 vs Jan–Oct 2025",
+      "use": "Kịch bản tham chiếu, không phải dự báo"
+    },
+    {
+      "id": "S02",
+      "title": "NSO SCOLI 2025",
+      "url": "https://www.nso.gov.vn/du-lieu-va-so-lieu-thong-ke/2026/04/thong-cao-bao-chi-chi-so-gia-sinh-hoat-theo-khong-gian-nam-2025/",
+      "values": {
+        "HN": 100,
+        "HCM": 97.96
+      },
+      "use": "So sánh giỏ hàng cấp tỉnh/thành, không phải ngưỡng cá nhân"
+    },
+    {
+      "id": "S03",
+      "title": "NSO KSMS 2024",
+      "url": "https://www.nso.gov.vn/tin-tuc-thong-ke/2025/05/thong-cao-bao-chi-ket-qua-khao-sat-muc-song-dan-cu-nam-2024/",
+      "values": {
+        "urban": 3800000,
+        "rural": 2500000
+      },
+      "unit": "VND/person/month, approximate",
+      "use": "Chi tiêu bình quân, không phải mức tối thiểu; không đồng nhất ngoại thành với nông thôn"
+    },
+    {
+      "id": "S06",
+      "title": "CFPB Your Money, Your Goals",
+      "url": "https://www.consumerfinance.gov/consumer-tools/educator-tools/your-money-your-goals/toolkit/",
+      "use": "Theo dõi thu chi, lập ngân sách dòng tiền"
+    },
+    {
+      "id": "S10",
+      "title": "SEC Savings Goal Calculator",
+      "url": "https://www.investor.gov/financial-tools-calculators/calculators/savings-goal-calculator",
+      "use": "Tính khoản góp định kỳ"
+    },
+    {
+      "id": "S24",
+      "title": "NIST AI RMF",
+      "url": "https://www.nist.gov/itl/ai-risk-management-framework",
+      "use": "Minh bạch, kiểm soát rủi ro"
+    }
+  ],
+  "rules": {
+    "essential": [
+      "home",
+      "food",
+      "travel",
+      "bills",
+      "other"
+    ],
+    "optional": [
+      "shopping",
+      "fun"
+    ],
+    "cut_caps": [
+      0.15,
+      0.3,
+      0.45
+    ],
+    "cut_caps_status": "Prototype assumptions, not empirical thresholds",
+    "floor": "User confirmed minimum; default essential and unknown = current spend; optional without confirmation = current spend",
+    "inflation_scenarios": [
+      0,
+      4.57,
+      7
+    ],
+    "scenario_status": "0 and 7 illustrative; 4.57 historical proxy, not forecast",
+    "eta_limit_months": 120,
+    "location": "Only contextual benchmark; no automatic multiplication of observed personal expenses"
+  }
+}
