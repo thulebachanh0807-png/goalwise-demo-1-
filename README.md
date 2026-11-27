@@ -1,46 +1,59 @@
-# GoalWise AI — Gemini Free Tier Demo
+# GoalWise V13 — Gemini Free Tier Edition (yofi)
 
-GoalWise is an independent student fintech prototype inspired by MoMo's colors. **It is not an official MoMo app.** The product provides education and budgeting scenarios; it does not move money, access bank logins, or guarantee current rates.
+This release is based on the supplied **GoalWise_V13_AWS(1).zip**. Its human-centered budget logic and V8 Bank Matcher are retained. The **AWS Bedrock** integration has been replaced with a **Google Gemini REST API** backend so the team can test a Free Tier key without configuring AWS.
 
-## Gemini Free Tier deployment on Render
+> Independent concept inspired by MoMo's colors. Not an official MoMo product. Does not connect payment accounts, make deposits or execute financial transactions. Bank interest rates are dated examples, not live quotes.
 
-The backend uses **Gemini API** by default. The configured model is `gemini-3.5-flash-lite`; it must be available to the particular Google AI Studio project. Free-tier accounts can have different model permissions and request quotas.
+## What's in V13
 
-1. In Google AI Studio → API Keys, verify the project shows **Free tier**, create/view a valid key, and keep it private. Free tier alone does not guarantee successful API calls.
-2. In Render → Web Service `goalwise-yofi-demo` → Environment, set `GEMINI_API_KEY` = your secret key.
-3. Optional: set `GEMINI_MODEL` = `gemini-3.5-flash-lite`. If a model is not available, consult the check below rather than guessing names.
-4. Remove no-longer-needed `OPENAI_API_KEY` / `OPENAI_MODEL` to avoid confusion; the server no longer uses them.
-5. Save, rebuild and deploy. Confirm **Live**.
-6. Check `/api/health`: `provider=Gemini`, `ai_ready=true` means only that the key is configured.
-7. Check `/api/ai-check` (or `/api/models-check`): fetches the `generateContent` model list using **your key**, displays free candidate model IDs; listing a model does not prove it can generate.
-8. Test **AI đề xuất ngân sách** inside GoalWise. If Google rejects the request, the app shows a categorized HTTP message and falls back to clear rule-based suggestions.
+- 3-month synthetic transaction history, refunds excluded from spending, internal transfers excluded from expenses.
+- Goal setup and contextual CPI / SCOLI information.
+- AI-proposed optional-category spending floors **only after confirmation**, draft budgeting and explicit budget approval.
+- Recovery-mode budgeting for insufficient income: monitor spending but block saving/banking until a new feasible plan is approved.
+- Tracking, synthetic transactions, notifications and manual review/correction.
+- Savings journey plus embedded V8 Bank Matcher with dated indicative bank rates.
+- **Export thu–chi PDF** from the budget/monitoring screen using the browser Print → **Save as PDF**. Bank options and rates are excluded from this export.
+- Gemini AI tasks: suggest floors, allocate feasible budget adjustments, explain spending risk, select Bank Matcher option B from a prefiltered list.
+- Offline rule-based backup for when Gemini is not configured or does not return a valid plan.
 
-The Google AI Studio **Free Tier** may offer free requests but has quotas and eligible-model limits. Some modern `AQ.` authorization keys are valid, but an individual key or project may still receive HTTP 400/401/403. The code intentionally does not pretend that a Free Tier badge guarantees successful AI inference. See the official Google docs: https://ai.google.dev/gemini-api/docs/api-key and https://ai.google.dev/gemini-api/docs/pricing
+## Run on Render (already linked to GitHub)
 
-**Do not paste API keys into HTML, GitHub, screenshots, PDFs, or chat.** Revoke any previously exposed key. Do not enable billing if you specifically want to stay on the free tier. Free-tier data may be used to improve Google's services; for demos, enter synthetic income and expenses only, not sensitive financial details.
+1. Upload/commit `index.html`, `app.py`, `evidence.json`, `requirements.txt`, and README/launcher to the root of your existing repository.
+2. Render Web Service should use build command `pip install -r requirements.txt` and start command **`python app.py`**. No AWS credentials or boto3 are required.
+3. Under Render → Environment, keep `GEMINI_API_KEY` as a secret variable. Optional `GEMINI_MODEL=gemini-3.5-flash-lite`. If Google does not provide the model, review `/api/ai-check` and change the model to an actually supported Free Tier Flash-Lite model.
+4. Delete unused `BEDROCK_MODEL_ID`, `AWS_BEARER_TOKEN_BEDROCK`, AWS runtime keys and old OpenAI keys to avoid confusion, if present. Do **not** share an API key.
+5. Deploy; then visit `/api/health`, `/api/ai-check`, and test one AI interaction. **`ready: true` proves a key is set, not that requests succeeded.**
+6. To reduce abuse on a public demo, `GOALWISE_AI_MAX_CALLS_PER_HOUR` defaults to 35 for the entire server. This is a basic in-memory guardrail only; production requires user authentication, request throttling and cost controls.
 
-## GoalWise features
+## Local offline preview
 
-- **Budget Planner:** goal, income, existing savings, seven spending categories, savings reserve and target deadline. Gemini may suggest bounded percentage cuts; the user must approve any change. Local formulas compute the actual savings and timeline even when the AI API is unavailable.
-- **Regional context:** sourced macro-level CPI, SCOLI and urban/rural averages from `data/evidence.json`. These aggregates are **not** specific category prices or proven minimum living costs. Inflation choices are scenarios, not financial forecasts.
-- **Bank Matcher:** precomputed, dated bank rate matrix in `data/rates.json`, with conditional source refresh; never use AI to invent rates, fees or bank deposit eligibility. Bank comparison results are illustrative.
-- **PDF:** the **Xuất thu–chi (PDF)** button generates only the income/expense budget report, not bank suggestions or rate comparisons.
-- **Fallback:** when Gemini is unavailable, capped rule-based suggestions continue to work without AI credits.
+Open `index.html` in a browser without running a server. The user interface and deterministic finance calculations run without any API key. Browser storage is local to the browser used; demo state can be reset from the Demo screen.
 
-## Routes and guardrails
+## Local AI preview (Windows)
 
-- `POST /api/budget` — Gemini suggests JSON cut percentages. Server enforces user locks, category-specific maximums, and input validation.
-- `POST /api/compare` — Gemini explains already-computed bank options without inventing figures.
-- `GET /api/health` — server configuration check only.
-- `GET /api/ai-check` — asks Google to list models with generateContent method; actual generation is tested via the app.
-- `GET /api/rates` — returns dated bank snapshots; `?refresh=1` attempts to check MoMo's public table.
+Install Python 3.10+, set `GEMINI_API_KEY` as an OS environment variable (not in the code), then double-click `START_WINDOWS.bat`. The app starts on `http://127.0.0.1:8768`.
 
-A basic server-wide guardrail allows 40 AI calls per hour by default (`GOALWISE_AI_MAX_CALLS_PER_HOUR`). This is not production-grade protection; it is not per-user and resets on restart. A public demo should have authentication, abuse protection, privacy disclosures and operational monitoring before broad use.
+macOS / Linux: `python3 -m pip install -r requirements.txt`, `export GEMINI_API_KEY="<private-key>"`, `python3 app.py`.
 
-## Local run
+## Backend API
 
-Python 3.10+ with `pip install -r requirements.txt`. Set `GEMINI_API_KEY` as a local environment variable, then run `python app.py` or use `START_WINDOWS.bat`. Open http://127.0.0.1:8768. Opening `index.html` as a standalone file runs offline mode only.
+- `GET /api/health` — returns `ready`, `ai_ready`, `provider`, model and version; no external API call.
+- `GET /api/ai-check` — checks Google's model catalog with your key; does not generate text.
+- `POST /api/ai` — accepts task `floors|budget|alert|bank` and a synthetic `payload`; validates response before sending it to the UI. The key remains server-side.
 
-Files: `index.html` frontend, `app.py` backend, `data/rates.json` bank snapshot, `data/evidence.json` regional context, and `requirements.txt` dependencies.
+The `budget` task reconciles the AI-proposed draft to the **exact feasible target reduction** without lowering protected or locked categories. The `bank` task can only return a candidate that the existing financial engine has calculated. All bank and budget results remain examples, not guarantees.
 
-**Verification status:** The GitHub files have been changed, but the Google key, actual Gemini generation, and the final Render deployment cannot be verified without deploying with your secret key. Keep the key private.
+## Data and privacy
+
+The data in `evidence.json` are historical national/regional reference points; **not granular local prices or minimum individual living costs**. CPI is not a forward forecast. The V13 bank matrix is copied from the uploaded archive and explicitly says it has not been freshly verified. The app does not silently update bank rates.
+
+Do not enter real bank credentials, OTPs, personal identifiers, or sensitive financial information. Google Gemini's Free Tier has separate data-handling terms; use synthetic amounts for the competition demo. All actual AI inference requires a Google project that has a working API key, appropriate model access and remaining free quota. Live inference has **not** been tested in this environment.
+
+## Verification
+
+- Python backend compiled.
+- JavaScript parsed successfully with Node.
+- Browser mobile flows tested: consent → goal → budget → approve → monitor → saving journey → embedded Bank Matcher.
+- PDF print action tested to include only income/expenses/cash-flow.
+- Mock Gemini request and bound-check tests passed.
+- Live Render deployment and actual Google inference remain to be confirmed in your account.
